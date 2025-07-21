@@ -1,4 +1,4 @@
-# WYD Server Management
+# WYD Server
 
 
 ## 🚀 First Installation
