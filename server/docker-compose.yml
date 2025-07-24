@@ -2,6 +2,8 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb_container
+    ports:
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: wyd_admin
       MONGO_INITDB_ROOT_PASSWORD: Golden_Song_Nose8
@@ -10,6 +12,8 @@ services:
       - mongodb_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     restart: always
+    command: mongod --bind_ip 127.0.0.1,mongodb_container
+
 
   rest_server:
     build:
