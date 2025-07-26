@@ -1,0 +1,3 @@
+[submodule "core"]
+	path = server/Core
+	url = https://github.com/RedDuality/WYD_Backend_Core.git
