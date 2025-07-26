@@ -13,6 +13,12 @@ git clone https://github.com/RedDuality/WYD_Server
 ```bash
 git submodule update --init --recursive
 ```
+move to the submodule develop branch
+
+```bash
+cd server/Core
+git checkout develop
+```
 ### Local mongo setup
 
 1. Install mongodb on local machine
