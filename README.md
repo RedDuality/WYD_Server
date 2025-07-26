@@ -1,18 +1,143 @@
 # WYD Server
 
-## Develop - Submodules
-### Setup
-After downloading the repository, on the local machine, import Core submodule:
+## Local Machine Setup
+
+### Download the code
+
+1. Move in the folder you want the repository to be
+2. Download the repository from this GitHub,
+```bash
+git clone https://github.com/RedDuality/WYD_Server
+```
+3. import submodules:
 ```bash
 git submodule update --init --recursive
 ```
+### Local mongo setup
+
+1. Install mongodb on local machine
+
+2. Enable Authentication:\
+Modify mongod.conf to add security.\
+File position and name changes based on the OS:
+
+Linux:
+```bash
+ sudo nano /etc/mongod.conf
+``` 
+Mac:\
+typically is /opt/homebrew/etc/mongod.conf or /usr/local/etc/mongod.conf
+
+Windows:\
+Look for mongod.cfg in your MongoDB installation directory
+
+Add:
+```yaml
+# /etc/mongod.conf (or similar)
+
+# ... other configurations ...
+
+security:
+  authorization: enabled
+
+# ... other configurations ...
+```
+
+3. Restart mongodb
+
+Linux:
+```bash
+ sudo systemctl start mongod
+```
+
+macOS (if installed via Homebrew):
+```bash
+brew services start mongodb-community 
+```
+
+Windows: \
+Start the MongoDB service via Services Manager or run 
+```bash
+mongod.exe --config "path\to\mongod.cfg" 
+```
+in an administrative command prompt.
+
+
+3. Connect to mongo, either by bash or by Compass\
+```bash
+mongosh "mongodb://localhost:27017/"
+```
+
+In Compass, you have first to connect to the database using the url, then open the MongoDB shell
+
+4. Create wyd_admin in the admin database
+
+switch to the admin database
+```bash
+use admin
+```
+create admin user
+```javascript
+db.createUser(
+  {
+    user: "wyd_admin",
+    pwd: "Test_Password",
+    roles: [
+      { role: "userAdminAnyDatabase", db: "admin" },
+      { role: "readWriteAnyDatabase", db: "admin" },
+      { role: "dbAdminAnyDatabase", db: "admin" },
+      { role: "clusterAdmin", db: "admin" }
+    ]
+  }
+);
+```
+
+
+exit from the console or disconnect from Compass.
+
+5. Connect mongosh as wyd_admin.
+
+Via bash o compass.
+
+bash:
+```bash
+mongosh "mongodb://localhost:27017/" --username wyd_admin --authenticationDatabase admin
+```
+then insert the password("Test_Password")
+
+In Compass edit the connection using the created credentials, then connect and open the shell.
+
+6. Switch to the wyd database (will create it if it does not exists)
+```bash
+use wyd
+```
+7. Create wyd_app_user in the wyd database with readWrite role.
+
+This is the user the server will use to access the database
+```javascript
+db.createUser(
+  {
+    user: "wyd_app_user",
+    pwd: "Test_User_Password",
+    roles: [
+      { role: "readWrite", db: "wyd" }
+    ]
+  }
+);
+```
+Test the creation of the user
+
+```javascript
+show users
+```
+## Push changes
 ### Upload changes
 once your code is perfect, you have to push your updates to both the core repository and the current one.
 
 #### 1. Update core repository
 
 ```bash
-cd server/src/Core
+cd server/Core
 git add .
 git commit -m ""
 git checkout develop
@@ -22,7 +147,7 @@ git push origin develop
 
 Move to the parent folder and push the updates
 
-## 🚀 First Installation
+## 🚀 Deployment on the Server
 
 This section covers the initial setup of the WYD server on a new Virtual Machine (VM).
 
@@ -75,6 +200,41 @@ docker compose up -d --build rest_server
 
 -----
 
+## 🔒 Firewall Configuration on the VM
+
+Here's how to configure `ufw` (Uncomplicated Firewall).
+
+### 1\. Enable the Firewall
+
+Activate `ufw` to start enforcing your security rules.
+
+```bash
+sudo ufw enable
+```
+
+### 2\. Allow Essential Services
+
+Permit necessary traffic for SSH and your web server.
+
+```bash
+sudo ufw allow ssh
+sudo ufw allow 8080/tcp
+```
+
+### 3\. 📡 Database Access Control (MongoDB - Port 27017)
+in local compass, 
+
+connect with
+```bash
+mongodb://<admin username>:<admin password>@localhost:27017/admin?authSource=admin
+```
+using ssh tunnel as 
+```bash
+ssh -i PathToSshPrivateKey -L 27017:127.0.0.1:27017 root@<VM_IP>
+```
+---
+
+
 ## 🔄 Updates
 
 Keeping your WYD server up-to-date is straightforward.
@@ -109,35 +269,3 @@ restart the container
 
 -----
 
-## 🔒 Firewall Configuration on the VM
-
-Here's how to configure `ufw` (Uncomplicated Firewall).
-
-### 1\. Enable the Firewall
-
-Activate `ufw` to start enforcing your security rules.
-
-```bash
-sudo ufw enable
-```
-
-### 2\. Allow Essential Services
-
-Permit necessary traffic for SSH and your web server.
-
-```bash
-sudo ufw allow ssh
-sudo ufw allow 8080/tcp
-```
-
-### 3\. 📡 Database Access Control (MongoDB - Port 27017)
-in compass, 
-
-connect with
-```bash
-mongodb://<admin username>:<admin password>@localhost:27017/admin?authSource=admin
-```
-using ssh tunnel as 
-```bash
-ssh -i PathToSshPrivateKey -L 27017:127.0.0.1:27017 root@<VM_IP>
-```

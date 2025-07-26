@@ -1,24 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver; // Add this using directive
+using Core; 
+using MongoDB.Driver;
 
-namespace server.Controllers // Updated namespace to match new folder/project name
+namespace server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("values")]
     public class ValuesController : ControllerBase
     {
-        private readonly IMongoDatabase _database;
+        private readonly MongoDbContext _dbContext;
 
-        public ValuesController(IMongoDatabase database)
+        public ValuesController(MongoDbContext dbContext)
         {
-            _database = database;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var collections = await _database.ListCollectionNames().ToListAsync();
-            return Ok($"Hello from C# REST Server! Connected to MongoDB. Collections: {string.Join(", ", collections)}\n");
+            // Example of using the CosmosDbContext to get collection names
+            var collections = await _dbContext.database.ListCollectionNames().ToListAsync();
+            
+            // Example of getting a specific collection (assuming ProfileEventDocument is your model)
+            // var profileEventsCollection = _dbContext.GetCollection<ProfileEventDocument>("ProfileEvents");
+            // var profileEventsCount = await profileEventsCollection.CountDocumentsAsync(_ => true);
+
+            return Ok($"Hello from C# REST Server! Connected to MongoDB (DbContext). Collections: {string.Join(", ", collections)}\n");
         }
 
         [HttpGet("{id}")]
