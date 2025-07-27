@@ -19,9 +19,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
-    var collections = await dbContext.CheckConnection();
-    if(collections.Count == 0)
-        await dbContext.Init();
+    await dbContext.Init();
 }
 
 // Configure the HTTP request pipeline.

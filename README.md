@@ -69,7 +69,7 @@ mongod.exe --config "path\to\mongod.cfg"
 in an administrative command prompt.
 
 
-3. Connect to mongo, either by bash or by Compass\
+3. Connect to mongo, either by bash or by Compass
 ```bash
 mongosh "mongodb://localhost:27017/"
 ```
@@ -97,11 +97,9 @@ db.createUser(
   }
 );
 ```
+5. create wyd_app_user
 
-
-exit from the console or disconnect from Compass.
-
-5. Connect mongosh as wyd_admin.
+Connect mongosh as wyd_admin.
 
 Via bash o compass.
 
@@ -113,29 +111,41 @@ then insert the password("Test_Password")
 
 In Compass edit the connection using the created credentials, then connect and open the shell.
 
-6. Switch to the wyd database (will create it if it does not exists)
-```bash
-use wyd
-```
-7. Create wyd_app_user in the wyd database with readWrite role.
 
-This is the user the server will use to access the database
+switch to the admin database
+```bash
+use admin
+```
+
+Then, create the program's user:
+
 ```javascript
 db.createUser(
   {
     user: "wyd_app_user",
     pwd: "Test_User_Password",
     roles: [
+      { role: "clusterAdmin", db: "admin" },
       { role: "readWrite", db: "wyd" }
     ]
   }
 );
 ```
+
 Test the creation of the user
 
 ```javascript
 show users
 ```
+
+exit from the console or disconnect from Compass.
+
+6. Switch to the wyd database (will create it if it does not exists)
+```bash
+use wyd
+```
+
+
 ## Push changes
 ### Upload changes
 once your code is perfect, you have to push your updates to both the core repository and the current one.

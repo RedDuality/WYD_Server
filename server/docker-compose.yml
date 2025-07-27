@@ -26,7 +26,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - DOTNET_USE_POLLING_FILE_WATCHER=1
-      - MONGODB_CONNECTION_STRING=mongodb://wyd_app_user:Use_Current_Universe1_Buffalo@mongodb_container:27017/wyd?authSource=wyd
+      - MONGODB_CONNECTION_STRING=mongodb://wyd_app_user:Use_Current_Universe1_Buffalo@mongodb_container:27017/wyd?authSource=admin
       - MONGODB_DATABASE_NAME=wyd
     volumes:
       - ./src:/app
