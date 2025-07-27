@@ -163,6 +163,14 @@ git push origin develop
 
 Move to the parent folder and push the updates
 
+## Retrieve Core changes
+
+If the core has been updated, run this line to align the local core copy to the remote one.
+```bash
+git submodule update --remote --merge
+```
+
+
 ## 🚀 Deployment on the Server
 
 This section covers the initial setup of the WYD server on a new Virtual Machine (VM).

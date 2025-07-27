@@ -1,40 +1,49 @@
 using Core;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Core.Services.Model;
+using Core.Services.Util; // Make sure this namespace is correct for RequestService
+using server.Middleware; // Add this using directive for your custom middleware
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); // Configures Swagger document generation
+builder.Services.AddSwaggerGen();
 
-// Register CosmosDbContext as a singleton
+// Transient: each instance will be used only one time, even in the same request
+// Scoped: the same class in the same request
+// Singleton: one instance shared between all request 
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<MongoDbService>();
+
+builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<ProfileEventService>();
+builder.Services.AddScoped<EventProfileService>();
+
 
 var app = builder.Build();
 
-// Initialize MongoDbContext after the app is built
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
     await dbContext.Init();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Enable Swagger UI in development environment
-    app.UseSwagger(); // Serves the generated Swagger JSON document
+    app.UseSwagger(); 
     app.UseSwaggerUI(options =>
     {
-        // Specify the Swagger JSON endpoint.
-        // By default, AddSwaggerGen generates the document at /swagger/v1/swagger.json
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-        options.RoutePrefix = "swagger"; // Sets the Swagger UI at the root /swagger
+        options.RoutePrefix = "swagger"; 
     });
 }
+
+// --- INSERT YOUR EXCEPTION HANDLING MIDDLEWARE HERE ---
+// It should be placed early in the pipeline to catch exceptions
+// from subsequent middleware components and your controllers.
+// A good place is after routing but before authorization and endpoint mapping.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 
