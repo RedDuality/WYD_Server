@@ -1,295 +1,305 @@
-# WYD Server
+# 🛠️ WYD Server Guide
 
-## Local Machine Setup
+This guide provides comprehensive instructions for setting up your WYD Server locally and deploying it to a Virtual Machine (VM).
 
-### Download the code
+---
 
-1. Move in the folder you want the repository to be
-2. Download the repository from this GitHub,
-```bash
-git clone https://github.com/RedDuality/WYD_Server
-```
-3. import submodules:
-```bash
-git submodule update --init --recursive
-```
-move to the submodule develop branch
+## 💻 Local Machine Setup
 
-```bash
-cd server/Core
-git checkout develop
-```
-### Local mongo setup
+### 📥 Download the Code
 
-1. Install mongodb on local machine
+Follow these steps to get the server code onto your local machine:
 
-2. Enable Authentication:\
-Modify mongod.conf to add security.\
-File position and name changes based on the OS:
+1. Navigate to your desired directory:
 
-Linux:
-```bash
- sudo nano /etc/mongod.conf
-``` 
-Mac:\
-typically is /opt/homebrew/etc/mongod.conf or /usr/local/etc/mongod.conf
+   ```bash
+   cd /path/to/your/project/folder
+   ```
 
-Windows:\
-Look for mongod.cfg in your MongoDB installation directory
+2. Clone the repository:
 
-Add:
+   ```bash
+   git clone https://github.com/RedDuality/WYD_Server
+   ```
+
+3. Initialize and update submodules:
+
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+4. Switch to the `develop` branch for the Core submodule:
+
+   ```bash
+   cd server/Core
+   git checkout develop
+   ```
+
+---
+
+### 🍃 Local MongoDB Setup
+
+Set up your local MongoDB instance with authentication.
+
+#### 1. Install MongoDB
+
+Ensure MongoDB is installed on your local machine.
+
+- **Linux**: follow the instruction from the official site
+- **Windows**: download and install the .msi file from the official site
+
+#### 2. Enable Authentication
+
+Modify your `mongod.conf` file:
+
+- **Linux**: `/etc/mongod.conf`  
+  Run: `sudo nano /etc/mongod.conf`
+- **macOS**: Usually `/opt/homebrew/etc/mongod.conf` or `/usr/local/etc/mongod.conf`
+- **Windows**: Look for `/bin/mongod.cfg` in your MongoDB installation directory, might be necessary to change write permissions.
+
+Add the following lines:
+
 ```yaml
-# /etc/mongod.conf (or similar)
-
-# ... other configurations ...
-
 security:
   authorization: enabled
-
-# ... other configurations ...
 ```
 
-3. Restart mongodb
+Then restart MongoDB:
 
-Linux:
-```bash
- sudo systemctl start mongod
-```
+- **Linux**:
+  ```bash
+  sudo systemctl start mongod
+  ```
+- **macOS**:
+  ```bash
+  brew services start mongodb-community
+  ```
+- **Windows**: Use Services Manager to locate the MongoDB Server service and restart it
 
-macOS (if installed via Homebrew):
-```bash
-brew services start mongodb-community 
-```
+#### 3. Connect to MongoDB
 
-Windows: \
-Start the MongoDB service via Services Manager or run 
-```bash
-mongod.exe --config "path\to\mongod.cfg" 
-```
-in an administrative command prompt.
-
-
-3. Connect to mongo, either by bash or by Compass
 ```bash
 mongosh "mongodb://localhost:27017/"
 ```
 
-In Compass, you have first to connect to the database using the url, then open the MongoDB shell
+Or use MongoDB Compass: first add a new connection with this link, then open the related shell
+.
 
-4. Create wyd_admin in the admin database
+---
 
-switch to the admin database
-```bash
+### 👤 Create Users
+
+#### 1. Create `wyd_admin`
+
+Inside the mondoDb shell, run:
+
+```js
 use admin
+
+db.createUser({
+  user: "wyd_admin",
+  pwd: "Test_Password",
+  roles: [
+    { role: "userAdminAnyDatabase", db: "admin" },
+    { role: "readWriteAnyDatabase", db: "admin" },
+    { role: "dbAdminAnyDatabase", db: "admin" },
+    { role: "clusterAdmin", db: "admin" }
+  ]
+});
 ```
-create admin user
-```javascript
-db.createUser(
-  {
-    user: "wyd_admin",
-    pwd: "Test_Password",
-    roles: [
-      { role: "userAdminAnyDatabase", db: "admin" },
-      { role: "readWriteAnyDatabase", db: "admin" },
-      { role: "dbAdminAnyDatabase", db: "admin" },
-      { role: "clusterAdmin", db: "admin" }
-    ]
-  }
-);
+
+Exit the shell:
+
+```bash
+exit
 ```
-5. create wyd_app_user
 
-Connect mongosh as wyd_admin.
+#### 2. Create `wyd_app_user`
 
-Via bash o compass.
+Reconnect as `wyd_admin`:
 
-bash:
+In compass, disconnect and then edit the connection to use the credential we just created(wyd_admin, Test_Password, "admin" database).
+
+If you are using the terminal, run:
 ```bash
 mongosh "mongodb://localhost:27017/" --username wyd_admin --authenticationDatabase admin
 ```
-then insert the password("Test_Password")
 
-In Compass edit the connection using the created credentials, then connect and open the shell.
+Then (in the shell) run:
 
-
-switch to the admin database
-```bash
+```js
 use admin
+
+db.createUser({
+  user: "wyd_app_user",
+  pwd: "Test_User_Password",
+  roles: [
+    { role: "clusterAdmin", db: "admin" },
+    { role: "readWrite", db: "wyd" }
+  ]
+});
 ```
 
-Then, create the program's user:
+Verify the correct creation of the two users:
 
-```javascript
-db.createUser(
-  {
-    user: "wyd_app_user",
-    pwd: "Test_User_Password",
-    roles: [
-      { role: "clusterAdmin", db: "admin" },
-      { role: "readWrite", db: "wyd" }
-    ]
-  }
-);
-```
-
-Test the creation of the user
-
-```javascript
+```js
 show users
 ```
 
-exit from the console or disconnect from Compass.
+Switch to `wyd` database (creates it if not exists):
 
-6. Switch to the wyd database (will create it if it does not exists)
-```bash
+```js
 use wyd
 ```
+You can now close the shell
 
+---
 
-## Push changes
-### Upload changes
-once your code is perfect, you have to push your updates to both the core repository and the current one.
+## ▶️ Start the Program
 
-#### 1. Update core repository
+1. **Open VSCode**: Open the root folder of the repo (or `/server`) in VSCode.
+2. **Navigate** to `src/Program.cs`.
+3. **Run and Debug**:
+   - Install .NET SDK 9.x.
+   - Restart VSCode if needed.
+   - Ensure you're running the **Development** configuration.
+
+---
+
+## ⬆️ Push Changes
+
+### 1. Update Core Repository
 
 ```bash
 cd server/Core
 git add .
-git commit -m ""
+git commit -m "Your descriptive commit message here"
 git checkout develop
 git push origin develop
 ```
-#### 2. Update parent repository
 
-Move to the parent folder and push the updates
+### 2. Update Parent Repository
 
-## Retrieve Core changes
+```bash
+cd ../.. # Go to root
+git add .
+git commit -m "Update Core submodule and other changes"
+git push origin main # or your main branch
+```
 
-If the core has been updated, run this line to align the local core copy to the remote one.
+---
+
+## ⬇️ Retrieve Core Changes
+
+If others updated Core, run:
+
 ```bash
 git submodule update --remote --merge
 ```
 
+---
 
 ## 🚀 Deployment on the Server
 
-This section covers the initial setup of the WYD server on a new Virtual Machine (VM).
-
 ### 1. Prepare the VM
 
-First, update your VM's package list and install **Docker** and **Docker Compose**.
+Update packages and install Docker & Compose:
 
-Update and install dependencies
 ```bash
 sudo apt update
-```
-Add Docker's GPG key and repository
-```bash
+
 sudo apt install -y ca-certificates curl gnupg lsb-release && \
 sudo mkdir -p /etc/apt/keyrings && \
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
 sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
 sudo apt update
-```
-Install Docker Engine and Compose Plugin
-```bash
+
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ${USER}
 ```
-Start and enable Docker, add user to docker group
-```bash
-sudo systemctl start docker && \
-sudo systemctl enable docker && \
-sudo usermod -aG docker ${USER} 
-````
 
-### 2\. Deploy the Code
+### 2. Deploy the Code
 
-To get your application code onto the VM, you'll need to transfer it from your local machine.
+Transfer from local to VM:
 
 ```bash
 scp -i PathToSshKey -r LocalPathToFolder/* root@VM_IP:/home/wyd/
 ```
 
-**Future Improvement:** Consider using **Git** for version control and easier code deployment.
+💡 *Consider switching to Git for future deployments.*
 
-### 3\. Build and Run the Server
-
-Once the code is on the VM, navigate to the directory and start your `rest_server` using Docker Compose.
+### 3. Build and Run the Server
 
 ```bash
 cd /home/wyd
 docker compose up -d --build rest_server
 ```
 
------
+---
 
-## 🔒 Firewall Configuration on the VM
+## 🔒 Firewall Configuration
 
-Here's how to configure `ufw` (Uncomplicated Firewall).
-
-### 1\. Enable the Firewall
-
-Activate `ufw` to start enforcing your security rules.
+### 1. Enable UFW
 
 ```bash
 sudo ufw enable
 ```
 
-### 2\. Allow Essential Services
-
-Permit necessary traffic for SSH and your web server.
+### 2. Allow Essential Services
 
 ```bash
 sudo ufw allow ssh
 sudo ufw allow 8080/tcp
 ```
 
-### 3\. 📡 Database Access Control (MongoDB - Port 27017)
-in local compass, 
+### 3. 📡 MongoDB Access via SSH Tunnel
 
-connect with
-```bash
-mongodb://<admin username>:<admin password>@localhost:27017/admin?authSource=admin
-```
-using ssh tunnel as 
+On your local machine:
+
 ```bash
 ssh -i PathToSshPrivateKey -L 27017:127.0.0.1:27017 root@<VM_IP>
 ```
----
 
+Then in Compass:
+
+```text
+mongodb://wyd_admin:Test_Password@localhost:27017/admin?authSource=admin
+```
+
+🔐 Replace `Test_Password` accordingly.
+
+---
 
 ## 🔄 Updates
 
-Keeping your WYD server up-to-date is straightforward.
+### 1. Watch for Changes
 
-### 1\. Monitor for Changes
-
-To automatically detect and apply code changes, use `docker compose watch`. Keep this console open to see updates in real-time.
+Run on VM to watch for live updates:
 
 ```bash
 cd /home/wyd
 docker compose watch
 ```
 
-### 2\. Update the Code
-
-Transfer your latest code from your local machine to the VM.
+### 2. Update Code on VM
 
 ```bash
 scp -i PathToSshKey -r LocalPathToFolder/* root@<VM_IP>:/home/wyd/
 ```
 
-***Future Improvement:** migrating to a **Git-based workflow** would allow for more efficient code updates, such as `git pull` commands directly on the VM.*
+💡 *Switch to Git for smoother deployment.*
 
+### 3. Restart Server
 
-\
-\
-\
-restart the container
+If `watch` isn’t running:
 
+```bash
+cd /home/wyd
+docker compose restart rest_server
+```
 
-
-
------
-
+---
