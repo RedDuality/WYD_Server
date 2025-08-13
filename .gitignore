@@ -54,4 +54,4 @@ TestResult.xml
 nunit-*.xml
 
 #WYD
-/server/src/appsettings.json
+server/src/appsettings.json
