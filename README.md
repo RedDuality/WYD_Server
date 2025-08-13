@@ -302,4 +302,7 @@ cd /home/wyd
 docker compose restart rest_server
 ```
 
+from the server folder:
+docker build -t redduality/wyd-containers:latest --target final .
+docker push redduality/wyd-containers:latest
 ---

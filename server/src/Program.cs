@@ -1,9 +1,22 @@
-using Core;
 using Core.Services.Model;
-using Core.Services.Util; // Make sure this namespace is correct for RequestService
-using server.Middleware; // Add this using directive for your custom middleware
+using Core.Services.Util; 
+using Core.Services.Database; 
+using Core.Services.Interfaces;
+using server.Middleware;
+using server.External;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PublicApiPolicy", builder =>
+    {
+        builder
+            .AllowAnyOrigin() // Public API: allow all origins
+            .AllowAnyHeader() // Allow headers like Authorization
+            .AllowAnyMethod(); // GET, POST, PUT, DELETE, etc.
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -14,6 +27,13 @@ builder.Services.AddSwaggerGen();
 // Singleton: one instance shared between all request 
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
+
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddSingleton<IAuthenticationService, FirebaseAuthService>();
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<ProfileDetailsService>();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<ProfileEventService>();
@@ -31,19 +51,19 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); 
+    app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-        options.RoutePrefix = "swagger"; 
+        options.RoutePrefix = "swagger";
     });
 }
 
-// --- INSERT YOUR EXCEPTION HANDLING MIDDLEWARE HERE ---
-// It should be placed early in the pipeline to catch exceptions
-// from subsequent middleware components and your controllers.
-// A good place is after routing but before authorization and endpoint mapping.
+app.UseCors("PublicApiPolicy");
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.UseAuthorization();
 

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Core.Services.Util;
 using Microsoft.AspNetCore.Mvc;
+
 //Exception Specific libraries
 /*
 using Microsoft.AspNetCore.Http; // Ensure this is present for HttpContext, RequestDelegate
@@ -14,16 +15,10 @@ using System.Threading; // Add this for ThreadInterruptedException
 
 namespace server.Middleware;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger = logger;
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
@@ -41,7 +36,7 @@ public class ExceptionHandlingMiddleware
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        IActionResult errorResult = RequestService.GetErrorResult(exception);
+        IActionResult errorResult = ExceptionService.GetErrorResult(exception);
 
         context.Response.ContentType = "application/json";
 
