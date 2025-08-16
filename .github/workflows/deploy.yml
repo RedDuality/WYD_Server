@@ -31,7 +31,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./server
+          context: .
           platforms: linux/amd64,linux/arm64
           push: true
           tags: redduality/wyd-rest-server:latest
@@ -50,11 +50,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "🚀 Triggering deployment rollout..."
-            # This command tells Kubernetes to do a rolling update of the deployment.
-            # It will pull the new 'latest' image we just pushed.
+            # This command triggers a new deployment.
             kubectl rollout restart deployment/rest-server-deployment
-            echo "✅ Deployment update initiated!"
-            
-            # (Optional) Wait a moment and check the status of the new pods
-            sleep 10
+
+            echo "⏳ Waiting for deployment to complete..."
+            # This command will wait until the deployment is successful (or times out).
+            kubectl rollout status deployment/rest-server-deployment --timeout=5m
+
+            # The workflow will only reach this line if the 'rollout status' command succeeds.
+            echo "✅ Deployment successful! Pods are running."
             kubectl get pods
