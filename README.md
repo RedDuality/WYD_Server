@@ -134,7 +134,7 @@ db.createUser({
   user: "wyd_app_user",
   pwd: "Test_User_Password",
   roles: [
-    { role: "clusterAdmin", db: "admin" },
+    { role: "enableSharding", db: "admin" },
     { role: "readWrite", db: "wyd" }
   ]
 });
@@ -303,6 +303,6 @@ docker compose restart rest_server
 ```
 
 from the server folder:
-docker build -t redduality/wyd-containers:latest --target final .
-docker push redduality/wyd-containers:latest
+docker build -t redduality/wyd-rest-server:latest --target final .
+docker push redduality/wyd-rest-server:latest
 ---

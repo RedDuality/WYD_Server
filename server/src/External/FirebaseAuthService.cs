@@ -13,12 +13,8 @@ public class FirebaseAuthService(IConfiguration configuration) : IAuthentication
     {
         if (FirebaseApp.DefaultInstance == null)
         {
-            var googleCredentialsJson = configuration.GetConnectionString("GOOGLE_CREDENTIALS");
-
-            if (string.IsNullOrEmpty(googleCredentialsJson))
-            {
-                throw new Exception("Google credentials not found in the environment variable");
-            }
+            var googleCredentialsJson = configuration.GetValue<string>("GOOGLE_CREDENTIALS")
+                ?? throw new InvalidOperationException("Google credentials not found in the environment variable");
 
             GoogleCredential credential;
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(googleCredentialsJson)))
