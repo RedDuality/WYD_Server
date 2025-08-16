@@ -10,70 +10,19 @@ This guide provides comprehensive instructions for setting up your WYD Server lo
 First Setup:
 
 #### 1. Install Docker Desktop
-Follow instructions from its original website.
-This will also provide a local Kubernetes cluster for development.
+Follow the instructions from the official Docker Desktop website. This is the only prerequisite tool needed.
 
-#### 2. Start kubernetes
+#### 2. Start the database
 
-From the Docker desktop application, install and start Kubernetes:
-1. move to Main Page -> Settings-> Kubernetes
-2. click on "Enable Kubernetes"
-3. click on "Apply"
-4. wait for it to download the needed images and start
-#### 3. Install kubectl
-
-For Windows and Mac it is already shipped and you only need to locate its path and add it to environment variables.
-Usually it's /usr/local/bin/kubectl (Mac) or C:\Program Files\Docker\Docker\resources\bin\kubectl.exe (Windows).
-
-For linux you have to install the kubectl binary and add it to loca/bin:
+Open a terminal in the server directory where the docker-compose.yml file is located and run :
 
 ```bash
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+docker compose up
 ```
-
-Check the commands by running:
-
-```bash
-kubectl version --client
-kubectl get nodes
-```
-
-#### 3. Create and Deploy the Database
-
-First, you need to set the environment variables.\
-Move to the repository's server/kube folder, then create secrets.yaml from secrets-blueprint.yaml:
-
-```bash
-cd server/kube
-cp secrets-blueprint.yaml secrets.yaml
-```
-secrets-blueprint.yaml contains the default credentials for local testing development.\
-Make sure the secrets you are using are the intended ones.
-
-Then, deploy your database and secrets to the local cluster:
-
-```bash
-kubectl apply -f secrets.yaml
-kubectl apply -f mongodb-deploy.yaml
-```
-
-Wait a few moments for the database Pod to start, and confirm it's running:
-
-```bash
-kubectl get pods
-```
-#### 4. Forward the Connection
-Open a new terminal and run the following command to create a secure tunnel:
-
-```bash
-kubectl port-forward svc/mongodb-service 27017:27017
-```
-
-Keep this terminal open as long as you are developing, as the connection will close when the command is terminated. Your local backend can now connect to localhost:27017.
+The server will be running on localhost:27017, with the credentials set in the docker-compose.yml file.
 
 #### On Following Times (After a computer restart):
-Simply start Docker Desktop, and the local Kubernetes cluster will be automatically restarted. The database Pod and all its data will persist. Then, just run the port-forwarding command from step 4 to re-establish the connection.
+Simply open Docker Desktop to ensure the Docker daemon is running, and then navigate to the directory and run docker compose up again. Your database data is persisted in a Docker volume and will not be lost.
 
 ---
 ### 📥 Download the Code

@@ -1,15 +1,20 @@
 services:
   mongodb:
     image: mongo:latest
-    container_name: mongodb_container
+    container_name: mongodb-dev
     ports:
-      - "27017:27017"
+      - "27017:27017" # Maps the container port to the host machine
     environment:
-      MONGO_INITDB_ROOT_USERNAME: wyd_admin
-      MONGO_INITDB_ROOT_PASSWORD: Golden_Song_Nose8
-      MONGO_INITDB_DATABASE: wyd
+      # Hardcoded credentials for local development
+      - MONGO_INITDB_ROOT_USERNAME=wyd_admin
+      - MONGO_INITDB_ROOT_PASSWORD=Test_Password
+      - MONGODB_APP_USER=wyd_app_user
+      - MONGODB_APP_PASSWORD=Test_User_Password
     volumes:
+      # Use a named volume to persist data across container restarts
       - mongodb_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    restart: always
-    command: mongod --bind_ip 127.0.0.1,mongodb_container
+      # Mount the initialization script
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+
+volumes:
+  mongodb_data:
