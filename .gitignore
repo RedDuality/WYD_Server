@@ -56,3 +56,5 @@ nunit-*.xml
 #WYD
 server/src/appsettings.json
 server/kube/secrets.yaml
+#in case someone missspells it
+server/kube/secret.yaml

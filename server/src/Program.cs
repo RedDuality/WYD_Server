@@ -4,6 +4,7 @@ using Core.Services.Database;
 using Core.Services.Interfaces;
 using server.Middleware;
 using server.External;
+using Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
