@@ -19,7 +19,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+//default route /api/
+builder.Services.AddControllers(options =>
+{
+    options.Conventions.Add(new RoutePrefixConvention("api"));
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

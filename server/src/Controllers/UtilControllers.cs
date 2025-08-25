@@ -5,7 +5,7 @@ using MongoDB.Driver;
 namespace server.Controllers;
 
 [ApiController]
-[Route("api/util")]
+[Route("util")]
 public class ValuesController : ControllerBase
 {
     private readonly MongoDbContext _dbContext;

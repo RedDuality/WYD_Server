@@ -6,7 +6,7 @@ using Core.Model.Dto;
 namespace server.Controllers;
 
 [ApiController]
-[Route("api/event")]
+[Route("event")]
 public class EventController(EventService eventService) : ControllerBase
 {
     private readonly EventService eventService = eventService;
