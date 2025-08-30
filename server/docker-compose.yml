@@ -11,10 +11,8 @@ services:
       - MONGODB_APP_USER=wyd_app_user
       - MONGODB_APP_PASSWORD=Test_User_Password
     volumes:
-      # Use a named volume to persist data across container restarts
       - mongodb_data:/data/db
-      # Mount the initialization script
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ../.docker/init-scripts/:/docker-entrypoint-initdb.d/:ro
 
 volumes:
   mongodb_data:
