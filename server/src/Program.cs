@@ -1,10 +1,16 @@
 using Core.Services.Model;
-using Core.Services.Util; 
-using Core.Services.Database; 
-using Core.Services.Interfaces;
+using Core.Services.Util;
+using Core.Components.Database;
+using Core.External.Interfaces;
+using Core.External.Authentication;
 using server.Middleware;
-using server.External;
-using Core;
+
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Any;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,20 +19,40 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PublicApiPolicy", builder =>
     {
         builder
-            .AllowAnyOrigin() // Public API: allow all origins
+            .AllowAnyOrigin() // Public API: allow all origins(CORS)
             .AllowAnyHeader() // Allow headers like Authorization
             .AllowAnyMethod(); // GET, POST, PUT, DELETE, etc.
     });
 });
 
-//default route /api/
+//default route /wyd/api/
 builder.Services.AddControllers(options =>
 {
-    options.Conventions.Add(new RoutePrefixConvention("api"));
+    options.Conventions.Add(new RoutePrefixConvention("wyd/api"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = builder.Configuration["AUTHENTICATION_ISSUER_URL"],
+            ValidAudience = builder.Configuration["AUTHENTICATION_AUDIENCE"],
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();//for ContextManager
+
+
 
 // Transient: each instance will be used only one time, even in the same request
 // Scoped: the same class in the same request
@@ -34,8 +60,19 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
 
-builder.Services.AddScoped<TokenService>();
-builder.Services.AddSingleton<IAuthenticationService, FirebaseAuthService>();
+builder.Services.AddScoped<ContextManager>();
+builder.Services.AddScoped<ContextService>();
+
+string authProvider = builder.Configuration["AUTHENTICATION_PROVIDER"]!;
+switch (authProvider)
+{
+    case "Firebase":
+        builder.Services.AddSingleton<IAuthenticationService, FirebaseAuthService>();
+        break;
+    default:
+        throw new Exception("Your authentication provider is not currently supported");
+}
+
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProfileService>();
@@ -45,6 +82,35 @@ builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<ProfileEventService>();
 builder.Services.AddScoped<EventProfileService>();
 
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Wyd API", Version = "v1" });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -69,7 +135,8 @@ app.UseCors("PublicApiPolicy");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.UseMiddleware<AuthenticationMiddleware>();
+
+//app.UseMiddleware<AuthenticationMiddleware>();
 
 app.UseAuthorization();
 

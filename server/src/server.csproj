@@ -6,8 +6,9 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FirebaseAdmin" Version="3.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+    <!-- AddSwaggerGen -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
   <ItemGroup>
