@@ -5,12 +5,9 @@ using Core.External.Interfaces;
 using Core.External.Authentication;
 using server.Middleware;
 
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Any;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +34,8 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.IncludeErrorDetails = true;
+        options.Authority = builder.Configuration["AUTHENTICATION_ISSUER_URL"];
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -44,13 +43,22 @@ builder.Services
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
 
-            ValidIssuer = builder.Configuration["AUTHENTICATION_ISSUER_URL"],
             ValidAudience = builder.Configuration["AUTHENTICATION_AUDIENCE"],
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine(context.Exception.ToString());
+                return Task.CompletedTask;
+            }
         };
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddHttpContextAccessor();//for ContextManager
+//for ContextManager
+builder.Services.AddHttpContextAccessor();
 
 
 
@@ -124,20 +132,14 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-        options.RoutePrefix = "swagger";
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseCors("PublicApiPolicy");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-
-//app.UseMiddleware<AuthenticationMiddleware>();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
