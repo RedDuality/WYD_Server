@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers;
 
-[Authorize]
+
 [ApiController]
-[Route("auth")]
+[Route("User")]
 public class UserController(ContextManager contextManager, UserService userService) : ControllerBase
 {
-
-    [HttpGet("VerifyToken")]
+    [Authorize]
+    [HttpGet("Retrieve")]
     public async Task<IActionResult> GetUserAsync()
     {
         var currentUser = await contextManager.GetCurrentUser();

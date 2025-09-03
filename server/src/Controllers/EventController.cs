@@ -1,35 +1,42 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Services.Model;
-using Core.Model;
 using Core.Model.Dto;
+using Core.Model.Dto.API;
+using Microsoft.AspNetCore.Authorization;
+using server.Middleware;
 
 namespace server.Controllers;
 
 [ApiController]
-[Route("event")]
-public class EventController(EventService eventService) : ControllerBase
+[Route("Event")]
+public class EventController(ContextManager contextManager, EventService eventService) : ControllerBase
 {
     private readonly EventService eventService = eventService;
 
-    [HttpGet("create")]
-    public async Task<IActionResult> Get()
+    [Authorize]
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create([FromBody] EventDto newEvent)
     {
-        var newEvent = new Event
+        var profileHash = contextManager.GetCurrentProfileId();
+        var ev = await eventService.CreateEventAsync(newEvent, profileHash);
+        return new OkObjectResult(new EventDto(ev));
+    }
+
+    [Authorize]
+    [HttpPost("ListByProfile")]
+    public async Task<IActionResult> ListByProfile([FromBody] RetrieveEventsDto retrieveDto)
+    {
+        var events = await eventService.RetrieveEventsByProfileId(retrieveDto.ProfileHashes, retrieveDto.StartTime, retrieveDto.EndTime);
+
+        return new OkObjectResult(events);
+    }
+
+    /*
+        [HttpGet("retrieve/{hash}")]
+        public async Task<IActionResult> GetAsync(string hash)
         {
-            Title = "Team Meeting",
-            Description = "Monthly team sync-up to discuss project progress.",
-            StartTime = new DateTimeOffset(2025, 6, 19, 14, 0, 0, TimeSpan.Zero),
-            EndTime = new DateTimeOffset(2025, 6, 19, 15, 0, 0, TimeSpan.Zero),
-        };
-
-        var ev = await eventService.CreateEventAsync(newEvent, "6847c7de755aeed467abdfd6");
-        return new OkObjectResult(new EventDto(ev));
-    }
-
-    [HttpGet("retrieve/{hash}")]
-    public async Task<IActionResult> GetAsync(string hash)
-    {
-        var ev = await eventService.RetrieveEventById(hash);
-        return new OkObjectResult(new EventDto(ev));
-    }
+            var ev = await eventService.RetrieveEventById(hash);
+            return new OkObjectResult(new EventDto(ev));
+        }
+        */
 }

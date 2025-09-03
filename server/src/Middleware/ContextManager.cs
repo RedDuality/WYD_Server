@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Core.Model;
 using Core.Services.Util;
+using Microsoft.Extensions.Primitives;
 
 namespace server.Middleware;
 
@@ -14,6 +15,9 @@ public class ContextManager(IHttpContextAccessor httpContextAccessor, ContextSer
         var user = _httpContextAccessor.HttpContext?.User;
         return await contextService.GetUser(user);
     }
-    
 
+    public string GetCurrentProfileId()
+    {
+        return ContextService.RetrieveFromHeaders(_httpContextAccessor.HttpContext!.Request, "Current-Profile");
+    }
 }
