@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Services.Model;
-using Core.Model.Dto;
-using Core.Model.Dto.API;
+using Core.DTO.EventAPI;
+
 using Microsoft.AspNetCore.Authorization;
 using server.Middleware;
 
@@ -15,28 +15,28 @@ public class EventController(ContextManager contextManager, EventService eventSe
 
     [Authorize]
     [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] EventDto newEvent)
+    public async Task<IActionResult> Create([FromBody] CreateEventRequestDto newEvent)
     {
         var profileHash = contextManager.GetCurrentProfileId();
         var ev = await eventService.CreateEventAsync(newEvent, profileHash);
-        return new OkObjectResult(new EventDto(ev));
+        return new OkObjectResult(ev);
     }
 
     [Authorize]
     [HttpPost("ListByProfile")]
-    public async Task<IActionResult> ListByProfile([FromBody] RetrieveEventsDto retrieveDto)
+    public async Task<IActionResult> ListByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
-        var events = await eventService.RetrieveEventsByProfileId(retrieveDto.ProfileHashes, retrieveDto.StartTime, retrieveDto.EndTime);
+        var events = await eventService.RetrieveEventsByProfileId(retrieveDto);
 
         return new OkObjectResult(events);
     }
 
-    /*
-        [HttpGet("retrieve/{hash}")]
-        public async Task<IActionResult> GetAsync(string hash)
-        {
-            var ev = await eventService.RetrieveEventById(hash);
-            return new OkObjectResult(new EventDto(ev));
-        }
-        */
+
+    [HttpGet("retrieve/{hash}")]
+    public async Task<IActionResult> GetAsync(string hash)
+    {
+        var ev = await eventService.RetrieveEventById(hash);
+        return new OkObjectResult(ev);
+    }
+
 }

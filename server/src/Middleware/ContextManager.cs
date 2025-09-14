@@ -1,11 +1,12 @@
 using System.Security.Claims;
 using Core.Model;
+using Core.Services.Model;
 using Core.Services.Util;
 using Microsoft.Extensions.Primitives;
 
 namespace server.Middleware;
 
-public class ContextManager(IHttpContextAccessor httpContextAccessor, ContextService contextService)
+public class ContextManager(IHttpContextAccessor httpContextAccessor, ContextService contextService, ProfileService profileService)
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
@@ -14,6 +15,13 @@ public class ContextManager(IHttpContextAccessor httpContextAccessor, ContextSer
         // Get the ClaimsPrincipal from the accessor
         var user = _httpContextAccessor.HttpContext?.User;
         return await contextService.GetUser(user);
+    }
+
+    public async Task<Profile> GetCurrentProfile()
+    {
+        // Get the ClaimsPrincipal from the accessor
+        var profileId = GetCurrentProfileId();
+        return await profileService.RetrieveProfileById(profileId);
     }
 
     public string GetCurrentProfileId()

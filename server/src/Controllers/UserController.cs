@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Services.Model;
-using Core.Model.Dto;
+using Core.DTO.Model;
 using server.Middleware;
 using Microsoft.AspNetCore.Authorization;
 

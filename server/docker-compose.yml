@@ -12,7 +12,7 @@ services:
       - MONGODB_APP_PASSWORD=Test_User_Password
     volumes:
       - mongodb_data:/data/db
-      - ../.docker/init-scripts/:/docker-entrypoint-initdb.d/:ro
+      - ../.docker/db-init-scripts/:/docker-entrypoint-initdb.d/:ro
 
   minio:
     image: minio/minio:latest
@@ -26,6 +26,30 @@ services:
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  
+  init-minio:
+    image: minio/mc
+    container_name: init-minio-dev
+    depends_on:
+      minio:
+        condition: service_healthy
+    # Mount the local script directory into the container.
+    volumes:
+      - ../.docker/objs-init-scripts/:/init-scripts/:ro
+    entrypoint: /init-scripts/init-minio.sh
+    restart: "no"
+    environment:
+      # Pass the root credentials to the script as environment variables.
+      - MINIO_ROOT_USER=minio_admin
+      - MINIO_ROOT_PASSWORD=Test_Password
+      # Define the application user credentials and bucket name for the script.
+      - MINIO_APP_USER=app_user
+      - MINIO_APP_PASSWORD=Test_App_Password
 
 volumes:
   mongodb_data:

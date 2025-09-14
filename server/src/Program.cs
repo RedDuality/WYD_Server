@@ -8,6 +8,7 @@ using server.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Core.Components.ObjectStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,7 +58,7 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
-//for ContextManager
+// for ContextManager
 builder.Services.AddHttpContextAccessor();
 
 
@@ -68,27 +69,22 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
 
+builder.Services.AddSingleton<MinioClient>();
+
+
 builder.Services.AddScoped<ContextManager>();
 builder.Services.AddScoped<ContextService>();
-
-string authProvider = builder.Configuration["AUTHENTICATION_PROVIDER"]!;
-switch (authProvider)
-{
-    case "Firebase":
-        builder.Services.AddSingleton<IAuthenticationService, FirebaseAuthService>();
-        break;
-    default:
-        throw new Exception("Your authentication provider is not currently supported");
-}
-
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ProfileDetailsService>();
 
 builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<EventDetailsService>();
 builder.Services.AddScoped<ProfileEventService>();
 builder.Services.AddScoped<EventProfileService>();
+
+builder.Services.AddScoped<MediaService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -126,7 +122,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
+    var minioClient = scope.ServiceProvider.GetRequiredService<MinioClient>();
     await dbContext.Init();
+    await minioClient.TestConnection();
 }
 
 if (app.Environment.IsDevelopment())
