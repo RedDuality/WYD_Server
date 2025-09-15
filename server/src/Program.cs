@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Core.Components.ObjectStorage;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,12 +21,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader() // Allow headers like Authorization
             .AllowAnyMethod(); // GET, POST, PUT, DELETE, etc.
     });
-});
-
-//default route /wyd/api/
-builder.Services.AddControllers(options =>
-{
-    options.Conventions.Add(new RoutePrefixConvention("wyd/api"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -68,7 +64,6 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
 
 builder.Services.AddSingleton<MinioClient>();
-
 
 builder.Services.AddScoped<ContextManager>();
 builder.Services.AddScoped<ContextService>();
@@ -125,8 +120,11 @@ using (var scope = app.Services.CreateScope())
     await minioClient.TestConnection();
 }
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsEnvironment("Local"))
 {
+    var mvcOptions = app.Services.GetRequiredService<IOptions<MvcOptions>>().Value;
+    mvcOptions.Conventions.Add(new RoutePrefixConvention("wyd/api"));
+    
     app.UseSwagger();
     app.UseSwaggerUI();
 }

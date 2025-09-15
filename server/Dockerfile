@@ -1,18 +1,18 @@
-# Stage 1: Build the application for release (Production)
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Copy the entire project context into the container
-# This preserves the directory structure (e.g., server/, Core/, etc.)
-COPY . .
+# Copy csproj and sln first (better caching of NuGet restore)
+COPY server/src/*.csproj ./server/src/
+COPY server/src/server.sln ./server/src/
 
-# Restore all project dependencies by specifying the solution file
 RUN dotnet restore server/src/server.sln
 
-# Publish the application
-RUN dotnet publish "server/src/server.csproj" -c Release -o /app/publish /p:UseAppHost=false
+# Copy everything else
+COPY . .
 
-# Stage 2: Create the final production image
+# Build and publish
+RUN dotnet publish server/src/server.csproj -c Release -o /app/publish /p:UseAppHost=false
+
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
