@@ -23,6 +23,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services
@@ -124,7 +126,7 @@ if (app.Environment.IsEnvironment("Local"))
 {
     var mvcOptions = app.Services.GetRequiredService<IOptions<MvcOptions>>().Value;
     mvcOptions.Conventions.Add(new RoutePrefixConvention("wyd/api"));
-    
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }
