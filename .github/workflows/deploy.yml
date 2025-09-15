@@ -7,9 +7,6 @@ on:
 jobs:
   build-and-push:
     name: Build and Push Docker Image
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64]
     runs-on: ubuntu-latest
 
     steps:
@@ -31,14 +28,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push image for ${{ matrix.platform }}
+      - name: Build and push unified multi-platform image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./server/Dockerfile
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: redduality/wyd-rest-server:${{ matrix.platform }}
+          tags: redduality/wyd-rest-server:latest
 
   deploy:
     name: Deploy to Remote Server
