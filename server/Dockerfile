@@ -14,11 +14,7 @@ RUN dotnet restore server/server.sln
 COPY . .
 
 # Build first to leverage caching
-RUN dotnet build server/src/server.csproj -c Release --no-restore
-
-# Publish trimmed, without app host
-RUN dotnet publish server/src/server.csproj -c Release --no-restore -o /app/publish \
-    /p:UseAppHost=false /p:PublishTrimmed=true /p:SelfContained=false
+RUN dotnet publish server/src/server.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
