@@ -1,8 +1,6 @@
 using Core.Services.Model;
 using Core.Services.Util;
 using Core.Components.Database;
-using Core.External.Interfaces;
-using Core.External.Authentication;
 using server.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
