@@ -1,5 +1,8 @@
+# .github/workflows/deploy.yml
+
 name: Build and Deploy REST Server
 
+# This workflow runs on every push to the 'main' branch
 on:
   push:
     branches: [ "main" ]
@@ -28,7 +31,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push unified multi-platform image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -40,7 +43,7 @@ jobs:
   deploy:
     name: Deploy to Remote Server
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: build-and-push 
 
     steps:
       - name: Deploy to Debian Server via SSH
@@ -51,10 +54,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "🚀 Triggering deployment rollout..."
+            # This command triggers a new deployment.
             kubectl rollout restart deployment/rest-server-deployment
 
             echo "⏳ Waiting for deployment to complete..."
+            # This command will wait until the deployment is successful (or times out).
             kubectl rollout status deployment/rest-server-deployment --timeout=5m
 
+            # The workflow will only reach this line if the 'rollout status' command succeeds.
             echo "✅ Deployment successful! Pods are running."
             kubectl get pods
