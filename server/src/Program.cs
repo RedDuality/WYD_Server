@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using Core.Components.ObjectStorage;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
+using FirebaseAdmin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod(); // GET, POST, PUT, DELETE, etc.
     });
 });
+
 
 builder.Services.AddControllers();
 
@@ -69,6 +71,9 @@ builder.Services.AddSingleton<MinioClient>();
 
 builder.Services.AddScoped<ContextManager>();
 builder.Services.AddScoped<ContextService>();
+
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<BroadcastService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProfileService>();
