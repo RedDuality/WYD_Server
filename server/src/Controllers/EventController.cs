@@ -13,6 +13,8 @@ public class EventController(ContextManager contextManager, EventService eventSe
 {
     private readonly EventService eventService = eventService;
 
+    #region modify
+
     [Authorize]
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateEventRequestDto newEvent)
@@ -23,20 +25,43 @@ public class EventController(ContextManager contextManager, EventService eventSe
     }
 
     [Authorize]
+    [HttpPost("Update")]
+    public async Task<IActionResult> Update([FromBody] UpdateEventRequestDto updateDto)
+    {
+        var ev = await eventService.UpdateEventAsync(updateDto);
+        return new OkObjectResult(ev);
+    }
+
+
+    #endregion
+
+    #region retrieve
+
+    [Authorize]
     [HttpPost("ListByProfile")]
     public async Task<IActionResult> ListByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
-        var events = await eventService.RetrieveEventsByProfileId(retrieveDto);
+        var events = await eventService.RetrieveEventsByProfileIds(retrieveDto);
 
         return new OkObjectResult(events);
     }
 
 
-    [HttpGet("retrieve/{hash}")]
-    public async Task<IActionResult> GetAsync(string hash)
+    [HttpGet("retrieveEssentials/{eventId}")]
+    public async Task<IActionResult> GetEssentialsAsync(string eventId)
     {
-        var ev = await eventService.RetrieveEventById(hash);
+        var profileHash = contextManager.GetCurrentProfileId();
+        var ev = await eventService.RetrieveEventById(eventId, profileHash);
         return new OkObjectResult(ev);
     }
+
+    [HttpGet("retrieveDetails/{eventId}")]
+    public async Task<IActionResult> GetDetailsAsync(string eventId)
+    {
+        var ev = await eventService.RetrieveEventWithDetailsById(eventId);
+        return new OkObjectResult(ev);
+    }
+
+    #endregion
 
 }
