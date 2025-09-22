@@ -4,6 +4,7 @@ using Core.DTO.EventAPI;
 
 using Microsoft.AspNetCore.Authorization;
 using server.Middleware;
+using Amazon;
 
 namespace server.Controllers;
 
@@ -32,7 +33,23 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
+    [Authorize]
+    [HttpGet("Confirm/{eventId}")]
+    public async Task<IActionResult> Confirm(string eventId)
+    {
+        var profileHash = contextManager.GetCurrentProfileId();
+        await eventService.Confirm(eventId, profileHash);
+        return new OkObjectResult("");
+    }
 
+    [Authorize]
+    [HttpGet("Decline/{eventId}")]
+    public async Task<IActionResult> Decline(string eventId)
+    {
+        var profileHash = contextManager.GetCurrentProfileId();
+        await eventService.Decline(eventId, profileHash);
+        return new OkObjectResult("");
+    }
     #endregion
 
     #region retrieve
