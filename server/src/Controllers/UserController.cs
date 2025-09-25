@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Core.Services.Model;
-using Core.DTO.Model;
+using Core.Services.Users;
 using Core.DTO.UserAPI;
 using server.Middleware;
 using Microsoft.AspNetCore.Authorization;
@@ -17,8 +16,7 @@ public class UserController(ContextManager contextManager, UserService userServi
     public async Task<IActionResult> GetUserAsync()
     {
         var currentUser = await contextManager.GetCurrentUser();
-        var profiles = await userService.RetrieveProfilesAsync(currentUser);
-        var userDto = new UserDto(currentUser, profiles);
+        var userDto = await userService.RetrieveProfilesAsync(currentUser);
         return new OkObjectResult(userDto);
     }
 

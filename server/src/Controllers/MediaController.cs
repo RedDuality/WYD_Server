@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.DTO.MediaAPI;
-using Core.Services.Model;
+using Core.Services.Events;
 using Microsoft.AspNetCore.Authorization;
 using server.Middleware;
 namespace server.Controllers;

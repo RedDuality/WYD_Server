@@ -1,5 +1,10 @@
-using Core.Services.Model;
+
+
+
+using Core.Services.Users;
+using Core.Services.Events;
 using Core.Services.Util;
+using Core.Services.Communities;
 using Core.Components.Database;
 using server.Middleware;
 
@@ -9,7 +14,6 @@ using Microsoft.OpenApi.Models;
 using Core.Components.ObjectStorage;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
-using FirebaseAdmin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +82,7 @@ builder.Services.AddScoped<BroadcastService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ProfileDetailsService>();
+builder.Services.AddScoped<ProfileTagService>();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<EventDetailsService>();
@@ -85,6 +90,12 @@ builder.Services.AddScoped<ProfileEventService>();
 builder.Services.AddScoped<EventProfileService>();
 
 builder.Services.AddScoped<MediaService>();
+
+builder.Services.AddScoped<CommunityService>();
+builder.Services.AddScoped<GroupService>();
+builder.Services.AddScoped<ProfileCommunityService>();
+builder.Services.AddScoped<CommunityProfileService>();
+
 
 builder.Services.AddSwaggerGen(options =>
 {

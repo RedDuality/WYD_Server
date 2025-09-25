@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Core.Services.Model;
+using Core.Services.Events;
 using Core.DTO.EventAPI;
 
 using Microsoft.AspNetCore.Authorization;
 using server.Middleware;
-using Amazon;
 
 namespace server.Controllers;
 
