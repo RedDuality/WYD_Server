@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Services.Events;
 using Core.DTO.EventAPI;
+using Core.DTO.CommunityAPI;
 
 using Microsoft.AspNetCore.Authorization;
 using server.Middleware;
@@ -33,6 +34,15 @@ public class EventController(ContextManager contextManager, EventService eventSe
     }
 
     [Authorize]
+    [HttpPost("Share/{eventId}")]
+    public async Task<IActionResult> Share(string eventId, [FromBody] List<ShareEventRequestDto> dtos)
+    {
+        var profile = await contextManager.GetCurrentProfile();
+        var ev = await eventService.ShareAsync(profile, eventId, dtos);
+        return new OkObjectResult(ev);
+    }
+
+    [Authorize]
     [HttpGet("Confirm/{eventId}")]
     public async Task<IActionResult> Confirm(string eventId)
     {
@@ -49,6 +59,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         await eventService.Decline(eventId, profileHash);
         return new OkObjectResult("");
     }
+
     #endregion
 
     #region retrieve

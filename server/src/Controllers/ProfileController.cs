@@ -5,7 +5,6 @@ using Core.Services.Users;
 using Core.DTO.ProfileAPI;
 
 using server.Middleware;
-using Amazon;
 
 
 namespace server.Controllers;
