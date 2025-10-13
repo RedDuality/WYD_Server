@@ -89,6 +89,16 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
+
+    [HttpGet("retrieveFromShared/{eventId}")]
+    public async Task<IActionResult> RetrieveFromShared(string eventId)
+    {
+        var profileHash = contextManager.GetCurrentProfileId();
+        var ev = await eventService.CreateAndRetrieveSharedEvent(eventId, profileHash);
+        return new OkObjectResult(ev);
+    }
+
+
     #endregion
 
 }

@@ -4,8 +4,10 @@
 using Core.Services.Users;
 using Core.Services.Events;
 using Core.Services.Util;
+using Core.Services.Notifications;
 using Core.Services.Communities;
 using Core.Components.Database;
+using Core.Components.MessageQueue;
 using server.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -65,7 +67,7 @@ builder.Services.AddHttpContextAccessor();
 
 
 
-// Transient: each instance will be used only one time, even in the same request
+// Transient: each instance will be re-created every time it is called, even in the same request
 // Scoped: the same class in the same request
 // Singleton: one instance shared between all request 
 builder.Services.AddSingleton<MongoDbContext>();
@@ -73,11 +75,7 @@ builder.Services.AddScoped<MongoDbService>();
 
 builder.Services.AddSingleton<MinioClient>();
 
-builder.Services.AddScoped<ContextManager>();
-builder.Services.AddScoped<ContextService>();
-
-builder.Services.AddScoped<NotificationService>();
-builder.Services.AddScoped<BroadcastService>();
+builder.Services.AddSingleton<MessageQueueService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProfileService>();
@@ -85,6 +83,8 @@ builder.Services.AddScoped<ProfileDetailsService>();
 builder.Services.AddScoped<ProfileTagService>();
 
 builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<EventUpdatePropagationService>();
+
 builder.Services.AddScoped<EventDetailsService>();
 builder.Services.AddScoped<ProfileEventService>();
 builder.Services.AddScoped<EventProfileService>();
@@ -95,6 +95,16 @@ builder.Services.AddScoped<CommunityService>();
 builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<ProfileCommunityService>();
 builder.Services.AddScoped<CommunityProfileService>();
+
+builder.Services.AddScoped<ContextManager>();
+builder.Services.AddScoped<ContextService>();
+
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<BroadcastService>();
+builder.Services.AddScoped<ProfileIdResolverFactory>();
+
+
+builder.Services.AddScoped<IMessageQueueHandlerService, MessageQueueHandlerService>();
 
 
 builder.Services.AddSwaggerGen(options =>
