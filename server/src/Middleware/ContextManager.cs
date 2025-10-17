@@ -1,6 +1,6 @@
 using Core.Model.Users;
 using Core.Model.Profiles;
-using Core.Services.Users;
+using Core.Services.Profiles;
 using Core.Services.Util;
 
 namespace server.Middleware;

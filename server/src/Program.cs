@@ -2,12 +2,14 @@
 
 
 using Core.Services.Users;
+using Core.Services.Profiles;
 using Core.Services.Events;
 using Core.Services.Util;
 using Core.Services.Notifications;
 using Core.Services.Communities;
 using Core.Components.Database;
 using Core.Components.MessageQueue;
+
 using server.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -78,9 +80,13 @@ builder.Services.AddSingleton<MinioClient>();
 builder.Services.AddSingleton<MessageQueueService>();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<DeviceService>();
+
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ProfileDetailsService>();
 builder.Services.AddScoped<ProfileTagService>();
+builder.Services.AddScoped<ProfileProfileService>();
+builder.Services.AddScoped<ProfileUpdatePropagationService>();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<EventUpdatePropagationService>();
@@ -102,7 +108,6 @@ builder.Services.AddScoped<ContextService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<BroadcastService>();
 builder.Services.AddScoped<ProfileIdResolverFactory>();
-
 
 builder.Services.AddScoped<IMessageQueueHandlerService, MessageQueueHandlerService>();
 

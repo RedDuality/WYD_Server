@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-using Core.Services.Users;
+using Core.Services.Profiles;
 using Core.DTO.ProfileAPI;
 
 using server.Middleware;

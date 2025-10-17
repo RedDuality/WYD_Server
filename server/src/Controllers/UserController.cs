@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers;
 
-
 [ApiController]
 [Route("User")]
-public class UserController(ContextManager contextManager, UserService userService) : ControllerBase
+public class UserController(
+    ContextManager contextManager,
+    UserService userService,
+    DeviceService deviceService) : ControllerBase
 {
     [Authorize]
     [HttpGet("Retrieve")]
@@ -26,7 +28,7 @@ public class UserController(ContextManager contextManager, UserService userServi
     {
         var currentUser = await contextManager.GetCurrentUser();
 
-        await userService.AddDevice(currentUser, storeTokenDto);
+        await deviceService.AddDevice(currentUser, storeTokenDto);
         return new OkObjectResult("");
     }
 }
