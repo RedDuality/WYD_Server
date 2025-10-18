@@ -38,6 +38,13 @@ public class ProfileController(ContextManager contextManager, ProfileService pro
         return new OkObjectResult(profile);
     }
 
+    [HttpGet("RetrieveDetailed/{profileId}")]
+    public async Task<IActionResult> RetrieveDetailed(string profileId)
+    {
+        var user = await contextManager.GetCurrentUser();
+        var profile = await profileService.RetrieveDetailedProfileById(user, profileId);
+        return new OkObjectResult(profile);
+    }
 }
 
 
