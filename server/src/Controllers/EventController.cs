@@ -98,6 +98,12 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
+    [HttpGet("getProfileEvents/{eventId}")]
+    public async Task<IActionResult> GetProfileEventsAsync(string eventId)
+    {
+        var ev = await eventService.GetProfileEventsAsync(eventId);
+        return new OkObjectResult(ev);
+    }
 
     #endregion
 
