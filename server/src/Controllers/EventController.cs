@@ -74,6 +74,15 @@ public class EventController(ContextManager contextManager, EventService eventSe
     }
 
 
+    [Authorize]
+    [HttpPost("UpdateByProfile")]
+    public async Task<IActionResult> UpdateByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
+    {
+        var events = await eventService.RetrieveUpdatesByProfileIds(retrieveDto);
+
+        return new OkObjectResult(events);
+    }
+
     [HttpGet("retrieveEssentials/{eventId}")]
     public async Task<IActionResult> GetEssentialsAsync(string eventId)
     {
