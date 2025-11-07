@@ -20,6 +20,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateEventRequestDto newEvent)
     {
+        // User Admin
         var profileHash = contextManager.GetCurrentProfileId();
         var ev = await eventService.CreateEventAsync(newEvent, profileHash);
         return new OkObjectResult(ev);
@@ -29,6 +30,8 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpPost("Update")]
     public async Task<IActionResult> Update([FromBody] UpdateEventRequestDto updateDto)
     {
+        // u admin
+        // e admin
         var ev = await eventService.UpdateEventAsync(updateDto);
         return new OkObjectResult(ev);
     }
@@ -37,6 +40,8 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpPost("Share/{eventId}")]
     public async Task<IActionResult> Share(string eventId, [FromBody] List<ShareEventRequestDto> dtos)
     {
+        // u admin
+        // e partecipant
         var profile = await contextManager.GetCurrentProfile();
         var ev = await eventService.ShareAsync(profile, eventId, dtos);
         return new OkObjectResult(ev);
@@ -46,6 +51,8 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpGet("Confirm/{eventId}")]
     public async Task<IActionResult> Confirm(string eventId)
     {
+        // u admin
+        // e partecipant
         var profileHash = contextManager.GetCurrentProfileId();
         await eventService.Confirm(eventId, profileHash);
         return new OkObjectResult("");
@@ -55,6 +62,8 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpGet("Decline/{eventId}")]
     public async Task<IActionResult> Decline(string eventId)
     {
+        // u admin
+        // e partecipant
         var profileHash = contextManager.GetCurrentProfileId();
         await eventService.Decline(eventId, profileHash);
         return new OkObjectResult("");
@@ -68,6 +77,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpPost("ListByProfile")]
     public async Task<IActionResult> ListByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
+        // u viewer
         var events = await eventService.RetrieveEventsByProfileIds(retrieveDto);
 
         return new OkObjectResult(events);
@@ -78,6 +88,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpPost("UpdateByProfile")]
     public async Task<IActionResult> UpdateByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
+        // u viewer
         var events = await eventService.RetrieveUpdatesByProfileIds(retrieveDto);
 
         return new OkObjectResult(events);
@@ -86,6 +97,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpGet("retrieveEssentials/{eventId}")]
     public async Task<IActionResult> GetEssentialsAsync(string eventId)
     {
+        // u viewer
         var profileHash = contextManager.GetCurrentProfileId();
         var ev = await eventService.RetrieveEventById(eventId, profileHash);
         return new OkObjectResult(ev);
@@ -94,6 +106,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpGet("retrieveDetails/{eventId}")]
     public async Task<IActionResult> GetDetailsAsync(string eventId)
     {
+        // u viewer
         var ev = await eventService.RetrieveEventWithDetailsById(eventId);
         return new OkObjectResult(ev);
     }
@@ -102,6 +115,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpGet("retrieveFromShared/{eventId}")]
     public async Task<IActionResult> RetrieveFromShared(string eventId)
     {
+        // u viewer
         var profileHash = contextManager.GetCurrentProfileId();
         var ev = await eventService.CreateAndRetrieveSharedEvent(eventId, profileHash);
         return new OkObjectResult(ev);
@@ -110,6 +124,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     [HttpGet("getProfileEvents/{eventId}")]
     public async Task<IActionResult> GetProfileEventsAsync(string eventId)
     {
+        // u partecipant
         var ev = await eventService.GetProfileEventsAsync(eventId);
         return new OkObjectResult(ev);
     }

@@ -26,6 +26,7 @@ public class UserController(
     [HttpPost("StoreFCMToken")]
     public async Task<IActionResult> StoreFcmToken(StoreFcmTokenRequestDto storeTokenDto)
     {
+        // viewer
         var currentUser = await contextManager.GetCurrentUser();
 
         await deviceService.AddDevice(currentUser.Id, storeTokenDto);

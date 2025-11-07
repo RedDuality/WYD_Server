@@ -17,6 +17,7 @@ public class ProfileController(ContextManager contextManager, ProfileService pro
     [HttpGet("SearchBytag/{searchTag}")]
     public async Task<IActionResult> SearchBytag(string searchTag)
     {
+        // Admin
         var profileDtos = await profileTagService.SearchByTagAsync(searchTag);
         return new OkObjectResult(profileDtos);
     }
@@ -25,6 +26,7 @@ public class ProfileController(ContextManager contextManager, ProfileService pro
     [HttpPost("Update")]
     public async Task<IActionResult> Update([FromBody] UpdateProfileRequestDto updateDto)
     {
+        // Admin
         var user = await contextManager.GetCurrentUser();
         var resultDto = await profileService.Update(user.Id, updateDto);
         return new OkObjectResult(resultDto);
@@ -40,6 +42,7 @@ public class ProfileController(ContextManager contextManager, ProfileService pro
     [HttpGet("RetrieveDetailed/{profileId}")]
     public async Task<IActionResult> RetrieveDetailed(string profileId)
     {
+        // Viewer
         var user = await contextManager.GetCurrentUser();
         var profile = await profileService.RetrieveDetailedProfileById(user, profileId);
         return new OkObjectResult(profile);
