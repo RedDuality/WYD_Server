@@ -26,10 +26,9 @@ public class ProfileController(ContextManager contextManager, ProfileService pro
     public async Task<IActionResult> Update([FromBody] UpdateProfileRequestDto updateDto)
     {
         var user = await contextManager.GetCurrentUser();
-        var resultDto = await profileService.Update(user, updateDto);
+        var resultDto = await profileService.Update(user.Id, updateDto);
         return new OkObjectResult(resultDto);
     }
-
 
     [HttpPost("Retrieve")]
     public async Task<IActionResult> Retrieve([FromBody] HashSet<string> profileIds)

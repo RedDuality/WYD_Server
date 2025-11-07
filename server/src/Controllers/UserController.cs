@@ -28,7 +28,7 @@ public class UserController(
     {
         var currentUser = await contextManager.GetCurrentUser();
 
-        await deviceService.AddDevice(currentUser, storeTokenDto);
+        await deviceService.AddDevice(currentUser.Id, storeTokenDto);
         return new OkObjectResult("");
     }
 }
