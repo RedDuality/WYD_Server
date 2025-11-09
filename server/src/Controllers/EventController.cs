@@ -5,18 +5,19 @@ using Core.DTO.CommunityAPI;
 
 using Microsoft.AspNetCore.Authorization;
 using server.Middleware;
+using Core.Services.Profiles;
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("Event")]
-public class EventController(ContextManager contextManager, EventService eventService) : ControllerBase
+public class EventController(ContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
 {
     private readonly EventService eventService = eventService;
 
     #region modify
 
-    [Authorize]
+    [Authorize(policy: "CanCreateEvents")]
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateEventRequestDto newEvent)
     {
@@ -26,7 +27,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
-    [Authorize]
+    [Authorize(policy: "CanEditEvents")]
     [HttpPost("Update")]
     public async Task<IActionResult> Update([FromBody] UpdateEventRequestDto updateDto)
     {
@@ -36,18 +37,19 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
-    [Authorize]
+    [Authorize(policy: "CanShareEvents")]
     [HttpPost("Share/{eventId}")]
     public async Task<IActionResult> Share(string eventId, [FromBody] List<ShareEventRequestDto> dtos)
     {
         // u admin
         // e partecipant
-        var profile = await contextManager.GetCurrentProfile();
+        var profileId = contextManager.GetCurrentProfileId();
+        var profile = await profileService.RetrieveProfileById(profileId);
         var ev = await eventService.ShareAsync(profile, eventId, dtos);
         return new OkObjectResult(ev);
     }
 
-    [Authorize]
+    [Authorize(policy: "CanEditEvents")]
     [HttpGet("Confirm/{eventId}")]
     public async Task<IActionResult> Confirm(string eventId)
     {
@@ -58,7 +60,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult("");
     }
 
-    [Authorize]
+    [Authorize(policy: "CanEditEvents")]
     [HttpGet("Decline/{eventId}")]
     public async Task<IActionResult> Decline(string eventId)
     {
@@ -73,7 +75,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
 
     #region retrieve
 
-    [Authorize]
+    [Authorize(policy: "CanReadEvents")]
     [HttpPost("ListByProfile")]
     public async Task<IActionResult> ListByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
@@ -84,7 +86,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
     }
 
 
-    [Authorize]
+    [Authorize(policy: "CanReadEvents")]
     [HttpPost("UpdateByProfile")]
     public async Task<IActionResult> UpdateByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
@@ -94,6 +96,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(events);
     }
 
+    [Authorize(policy: "CanReadEvents")]
     [HttpGet("retrieveEssentials/{eventId}")]
     public async Task<IActionResult> GetEssentialsAsync(string eventId)
     {
@@ -103,6 +106,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
+    [Authorize(policy: "CanReadEvents")]
     [HttpGet("retrieveDetails/{eventId}")]
     public async Task<IActionResult> GetDetailsAsync(string eventId)
     {
@@ -111,7 +115,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
-
+    [Authorize(policy: "CanReadEvents")]
     [HttpGet("retrieveFromShared/{eventId}")]
     public async Task<IActionResult> RetrieveFromShared(string eventId)
     {
@@ -121,6 +125,7 @@ public class EventController(ContextManager contextManager, EventService eventSe
         return new OkObjectResult(ev);
     }
 
+    [Authorize(policy: "CanReadEvents")]
     [HttpGet("getProfileEvents/{eventId}")]
     public async Task<IActionResult> GetProfileEventsAsync(string eventId)
     {

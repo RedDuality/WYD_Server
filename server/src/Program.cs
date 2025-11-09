@@ -10,6 +10,8 @@ using Core.Services.Communities;
 using Core.Components.Database;
 using Core.Components.MessageQueue;
 
+using Core.Model.Users;
+
 using server.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,7 @@ using Microsoft.OpenApi.Models;
 using Core.Components.ObjectStorage;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,7 +66,16 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    foreach (UserClaimType claimType in Enum.GetValues<UserClaimType>())
+    {
+        string policyName = claimType.ToString();
+        options.AddPolicy(policyName, policy =>
+            policy.Requirements.Add(new UserClaimRequirement(claimType)));
+    }
+});
+
 // for ContextManager
 builder.Services.AddHttpContextAccessor();
 
@@ -75,11 +87,14 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
 
+builder.Services.AddSingleton<IAuthorizationHandler, UserAuthorizationService>();
+
 builder.Services.AddSingleton<MinioClient>();
 
 builder.Services.AddSingleton<MessageQueueService>();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<UserClaimService>();
 builder.Services.AddScoped<DeviceService>();
 
 builder.Services.AddScoped<ProfileService>();
@@ -102,8 +117,7 @@ builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<ProfileCommunityService>();
 builder.Services.AddScoped<CommunityProfileService>();
 
-builder.Services.AddScoped<ContextManager>();
-builder.Services.AddScoped<ContextService>();
+builder.Services.AddScoped<IContextManager, ContextManager>();
 
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<BroadcastService>();

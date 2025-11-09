@@ -17,14 +17,12 @@ public class RoutePrefixConvention : IApplicationModelConvention
             {
                 if (selector.AttributeRouteModel != null)
                 {
-                    // Combine [Route("event")] with "api"
                     selector.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(
                         _routePrefix,
                         selector.AttributeRouteModel);
                 }
                 else
                 {
-                    // If no [Route] at all, apply just "api"
                     selector.AttributeRouteModel = _routePrefix;
                 }
             }

@@ -1,27 +1,30 @@
-using Core.Model.Users;
-using Core.Model.Profiles;
-using Core.Services.Profiles;
 using Core.Services.Util;
 
 namespace server.Middleware;
 
-public class ContextManager(IHttpContextAccessor httpContextAccessor, ContextService contextService, ProfileService profileService)
+public class ContextManager(IHttpContextAccessor httpContextAccessor) : IContextManager
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public async Task<User> GetCurrentUser()
+    public string GetAccountId()
     {
-        // Get the ClaimsPrincipal from the accessor
-        var user = _httpContextAccessor.HttpContext?.User;
-        return await contextService.GetUser(user);
+        var userPrincipal = _httpContextAccessor.HttpContext?.User;
+        return ContextService.GetAccountId(userPrincipal);
     }
 
-    public async Task<Profile> GetCurrentProfile()
+    public string GetEmail()
     {
-        // Get the ClaimsPrincipal from the accessor
-        var profileId = GetCurrentProfileId();
-        return await profileService.RetrieveProfileById(profileId);
+        var userPrincipal = _httpContextAccessor.HttpContext?.User;
+        return ContextService.GetEmail(userPrincipal);
     }
+
+
+    public string GetUserId()
+    {
+        var userPrincipal = _httpContextAccessor.HttpContext?.User;
+        return ContextService.GetUserId(userPrincipal);
+    }
+
 
     public string GetCurrentProfileId()
     {

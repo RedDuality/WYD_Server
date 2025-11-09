@@ -5,30 +5,33 @@ using Core.Services.Communities;
 using Core.DTO.CommunityAPI;
 
 using server.Middleware;
+using Core.Services.Profiles;
 
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("Community")]
-public class CommunityController(ContextManager contextManager, CommunityService communityService) : ControllerBase
+public class CommunityController(ContextManager contextManager, ProfileService profileService, CommunityService communityService) : ControllerBase
 {
-
+    [Authorize(policy:"CanViewCommunity")]
     [HttpGet("Retrieve")]
     public async Task<IActionResult> Retrieve()
     {
         // Viewer
-        var profile = await contextManager.GetCurrentProfile();
+        var profileId = contextManager.GetCurrentProfileId();
+        var profile =  await profileService.RetrieveProfileById(profileId);
         var communities = await communityService.Retrieve(profile);
         return new OkObjectResult(communities);
     }
 
-    [Authorize]
+    [Authorize(policy:"CanCreateCommunity")]
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateCommunityRequestDto createDto)
     {
         // Admin
-        var profile = await contextManager.GetCurrentProfile();
+        var profileId = contextManager.GetCurrentProfileId();
+        var profile =  await profileService.RetrieveProfileById(profileId);
         var newCommunity = await communityService.Create(createDto, profile);
         return new OkObjectResult(newCommunity);
     }
