@@ -9,7 +9,6 @@ namespace server.Controllers;
 [ApiController]
 [Route("User")]
 public class UserController(
-    ContextManager contextManager,
     UserService userService,
     DeviceService deviceService) : ControllerBase
 {
@@ -17,10 +16,7 @@ public class UserController(
     [HttpGet("Register")]
     public async Task<IActionResult> Register()
     {
-        var accountId = contextManager.GetAccountId();
-        var email = contextManager.GetEmail();
-
-        var userDto = await userService.CreateUserAsync(accountId, email);
+        var userDto = await userService.Register();
 
         return new OkObjectResult(userDto);
     }
@@ -29,10 +25,7 @@ public class UserController(
     [HttpGet("Login")]
     public async Task<IActionResult> Login()
     {
-        var accountId = contextManager.GetAccountId();
-        var userId = contextManager.GetUserId();
-
-        var userDto = await userService.RetrieveWithProfiles(userId, accountId);
+        var userDto = await userService.Login();
 
         return new OkObjectResult(userDto);
     }
@@ -43,10 +36,7 @@ public class UserController(
     public async Task<IActionResult> StoreFcmToken(StoreFcmTokenRequestDto storeTokenDto)
     {
         // viewer
-        var accountId = contextManager.GetAccountId();
-        var userId = contextManager.GetUserId();
-
-        var currentUser = await userService.Retrieve(userId, accountId);
+        var currentUser = await userService.Retrieve();
 
         await deviceService.AddDevice(currentUser.Id, storeTokenDto);
         return new OkObjectResult("");

@@ -18,7 +18,12 @@ public class ContextManager(IHttpContextAccessor httpContextAccessor) : IContext
         return ContextService.GetEmail(userPrincipal);
     }
 
-
+    public string? TryGetUserId()
+    {
+        var userPrincipal = _httpContextAccessor.HttpContext?.User;
+        return ContextService.TryGetUserId(userPrincipal);
+    }
+    
     public string GetUserId()
     {
         var userPrincipal = _httpContextAccessor.HttpContext?.User;
