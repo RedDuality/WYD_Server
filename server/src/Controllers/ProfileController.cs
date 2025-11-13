@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Core.Services.Profiles;
 using Core.DTO.ProfileAPI;
 
-using server.Middleware;
 using Core.Services.Users;
 
 

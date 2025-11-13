@@ -4,14 +4,14 @@ using Core.DTO.EventAPI;
 using Core.DTO.CommunityAPI;
 
 using Microsoft.AspNetCore.Authorization;
-using server.Middleware;
 using Core.Services.Profiles;
+using Core.Services.Util;
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("Event")]
-public class EventController(ContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
+public class EventController(IContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
 {
     private readonly EventService eventService = eventService;
 

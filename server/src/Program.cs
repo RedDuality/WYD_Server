@@ -21,6 +21,8 @@ using Core.Components.ObjectStorage;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Core.External.Authentication;
+using Core.External.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +88,8 @@ builder.Services.AddHttpContextAccessor();
 // Singleton: one instance shared between all request 
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
+
+builder.Services.AddScoped<IAuthService, FirebaseAuthService>();
 
 builder.Services.AddSingleton<IAuthorizationHandler, UserAuthorizationService>();
 

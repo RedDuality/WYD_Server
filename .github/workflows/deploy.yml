@@ -1,15 +1,12 @@
-# .github/workflows/deploy.yml
-
 name: Build and Deploy REST Server
 
-# This workflow runs on every push to the 'main' branch
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  build-and-deploy:
+    name: Build, Tag, and Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -18,6 +15,27 @@ jobs:
         with:
           submodules: true
           token: ${{ secrets.SUBMODULE_TOKEN }}
+
+      - name: Auto-bump patch version
+        id: version_bump 
+        run: |
+          VERSION=$(cat VERSION)
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          echo "$NEW_VERSION" > VERSION
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT 
+          echo "✅ Bumped version: $VERSION → $NEW_VERSION"
+
+      - name: Commit bumped version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add VERSION
+          git commit -m "ci: bump version to ${{ steps.version_bump.outputs.NEW_VERSION }} [skip ci]"
+          git push
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -38,29 +56,22 @@ jobs:
           file: ./server/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: redduality/wyd-rest-server:latest
+          tags: |
+            redduality/wyd-rest-server:latest
+            redduality/wyd-rest-server:${{ steps.version_bump.outputs.NEW_VERSION }}
 
-  deploy:
-    name: Deploy to Remote Server
-    runs-on: ubuntu-latest
-    needs: build-and-push 
-
-    steps:
-      - name: Deploy to Debian Server via SSH
+      - name: Deploy to Kubernetes via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🚀 Triggering deployment rollout..."
-            # This command triggers a new deployment.
-            kubectl rollout restart deployment/rest-server-deployment
+            echo "🚀 Updating deployment with version ${{ steps.version_bump.outputs.NEW_VERSION }}..."
+            kubectl set image deployment/rest-server-deployment rest-server-container=redduality/wyd-rest-server:${{ steps.version_bump.outputs.NEW_VERSION }}
 
             echo "⏳ Waiting for deployment to complete..."
-            # This command will wait until the deployment is successful (or times out).
             kubectl rollout status deployment/rest-server-deployment --timeout=5m
 
-            # The workflow will only reach this line if the 'rollout status' command succeeds.
             echo "✅ Deployment successful! Pods are running."
             kubectl get pods

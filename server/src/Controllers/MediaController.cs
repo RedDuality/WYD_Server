@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Core.DTO.MediaAPI;
 using Core.Services.Events;
 using Microsoft.AspNetCore.Authorization;
-using server.Middleware;
 using Core.Services.Profiles;
+using Core.Services.Util;
 namespace server.Controllers;
 
 [ApiController]
 [Route("Media")]
-public class MediaController(ContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
+public class MediaController(IContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
 {
 
     [Authorize(policy: "CanEditEvents")]

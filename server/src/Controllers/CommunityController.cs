@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Authorization;
 using Core.Services.Communities;
 using Core.DTO.CommunityAPI;
 
-using server.Middleware;
 using Core.Services.Profiles;
+using Core.Services.Util;
 
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("Community")]
-public class CommunityController(ContextManager contextManager, ProfileService profileService, CommunityService communityService) : ControllerBase
+public class CommunityController(IContextManager contextManager, ProfileService profileService, CommunityService communityService) : ControllerBase
 {
     [Authorize(policy:"CanViewCommunity")]
     [HttpGet("Retrieve")]

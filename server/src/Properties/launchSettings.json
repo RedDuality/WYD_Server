@@ -10,22 +10,6 @@
       },
       "launchUrl": "swagger"
     },
-    "DeployTesting": {
-      "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "DeployTesting"
-      },
-    },
-    "Beta": {
-      "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Beta"
-      },
-    },
     "Production": {
       "commandName": "Project",
       "launchBrowser": false,
