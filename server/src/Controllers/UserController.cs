@@ -35,10 +35,15 @@ public class UserController(
     [HttpPost("StoreFCMToken")]
     public async Task<IActionResult> StoreFcmToken(StoreFcmTokenRequestDto storeTokenDto)
     {
-        // viewer
-        var currentUser = await userService.Retrieve();
+        await deviceService.AddDevice(storeTokenDto);
+        return new OkObjectResult("");
+    }
 
-        await deviceService.AddDevice(currentUser.Id, storeTokenDto);
+    [Authorize]
+    [HttpPost("RemoveFCMToken")]
+    public async Task<IActionResult> RemoveFcmToken(string fcmToken)
+    {
+        await deviceService.RemoveDevice(fcmToken);
         return new OkObjectResult("");
     }
 }
