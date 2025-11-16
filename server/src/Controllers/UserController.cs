@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Services.Users;
 using Core.DTO.UserAPI;
-using server.Middleware;
 using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers;
@@ -32,7 +31,7 @@ public class UserController(
 
 
     [Authorize]
-    [HttpPost("StoreFCMToken")]
+    [HttpPost("StoreFcmToken")]
     public async Task<IActionResult> StoreFcmToken(StoreFcmTokenRequestDto storeTokenDto)
     {
         await deviceService.AddDevice(storeTokenDto);
@@ -40,8 +39,8 @@ public class UserController(
     }
 
     [Authorize]
-    [HttpPost("RemoveFCMToken")]
-    public async Task<IActionResult> RemoveFcmToken(string fcmToken)
+    [HttpPost("RemoveFcmToken")]
+    public async Task<IActionResult> RemoveFcmToken([FromBody]string fcmToken)
     {
         await deviceService.RemoveDevice(fcmToken);
         return new OkObjectResult("");
