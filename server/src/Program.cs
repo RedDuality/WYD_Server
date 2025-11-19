@@ -98,6 +98,7 @@ builder.Services.AddSingleton<MinioClient>();
 builder.Services.AddSingleton<MessageQueueService>();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<UserProfileService>();
 builder.Services.AddScoped<UserClaimService>();
 builder.Services.AddScoped<DeviceService>();
 

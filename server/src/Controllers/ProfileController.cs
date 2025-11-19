@@ -11,7 +11,7 @@ namespace server.Controllers;
 
 [ApiController]
 [Route("Profile")]
-public class ProfileController(UserService userService, ProfileService profileService, ProfileTagService profileTagService) : ControllerBase
+public class ProfileController(ProfileService profileService, ProfileTagService profileTagService) : ControllerBase
 {
     [Authorize]
     [HttpGet("SearchBytag/{searchTag}")]
@@ -29,23 +29,20 @@ public class ProfileController(UserService userService, ProfileService profileSe
         return new OkObjectResult(profile);
     }
 
-    [Authorize(policy:"CanViewProfileDetails")]
+    [Authorize(policy: "CanViewProfileDetails")]
     [HttpGet("RetrieveDetailed/{profileId}")]
     public async Task<IActionResult> RetrieveDetailed(string profileId)
     {
-        var currentUser = await userService.Retrieve();
-        var profile = await profileService.RetrieveDetailedProfileById(currentUser, profileId);
+        var profile = await profileService.RetrieveDetailedProfileById(profileId);
         return new OkObjectResult(profile);
     }
-    
 
-    [Authorize(policy: "CanEditCommunity")]
+
+    [Authorize(policy: "CanEditProfile")]
     [HttpPost("Update")]
     public async Task<IActionResult> Update([FromBody] UpdateProfileRequestDto updateDto)
     {
-
-        var currentUser = await userService.Retrieve();
-        var resultDto = await profileService.Update(currentUser.Id, updateDto);
+        var resultDto = await profileService.Update(updateDto);
         return new OkObjectResult(resultDto);
     }
 
