@@ -16,12 +16,12 @@ public class CommunityController(IContextManager contextManager, ProfileService 
 {
     [Authorize(policy:"CanViewCommunity")]
     [HttpGet("Retrieve")]
-    public async Task<IActionResult> Retrieve()
+    public async Task<IActionResult> RetrieveCommunities()
     {
         // Viewer
         var profileId = contextManager.GetCurrentProfileId();
         var profile =  await profileService.RetrieveProfileById(profileId);
-        var communities = await communityService.Retrieve(profile);
+        var communities = await communityService.RetrieveCommunities(profile);
         return new OkObjectResult(communities);
     }
 
