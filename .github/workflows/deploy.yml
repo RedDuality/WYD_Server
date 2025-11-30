@@ -5,10 +5,10 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-deploy:
-    name: Build, Tag, and Deploy
+  # 1️⃣ Build job
+  build:
+    name: Build & Version Bump
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
           token: ${{ secrets.SUBMODULE_TOKEN }}
 
       - name: Auto-bump patch version
-        id: version_bump 
+        id: version_bump
         run: |
           VERSION=$(cat VERSION)
           MAJOR=$(echo $VERSION | cut -d. -f1)
@@ -36,6 +36,18 @@ jobs:
           git add VERSION
           git commit -m "ci: bump version to ${{ steps.version_bump.outputs.NEW_VERSION }} [skip ci]"
           git push
+
+    outputs:
+      NEW_VERSION: ${{ steps.version_bump.outputs.NEW_VERSION }}
+
+  # 2️⃣ Docker job
+  docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -58,17 +70,23 @@ jobs:
           push: true
           tags: |
             redduality/wyd-rest-server:latest
-            redduality/wyd-rest-server:${{ steps.version_bump.outputs.NEW_VERSION }}
+            redduality/wyd-rest-server:${{ needs.build.outputs.NEW_VERSION }}
 
-      - name: Deploy to Kubernetes via SSH
+  # 3️⃣ Deploy job
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: [build, docker]
+    steps:
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🚀 Updating deployment with version ${{ steps.version_bump.outputs.NEW_VERSION }}..."
-            kubectl set image deployment/rest-server-deployment rest-server-container=redduality/wyd-rest-server:${{ steps.version_bump.outputs.NEW_VERSION }}
+            echo "🚀 Updating deployment with version ${{ needs.build.outputs.NEW_VERSION }}..."
+            kubectl set image deployment/rest-server-deployment rest-server-container=redduality/wyd-rest-server:${{ needs.build.outputs.NEW_VERSION }}
 
             echo "⏳ Waiting for deployment to complete..."
             kubectl rollout status deployment/rest-server-deployment --timeout=5m
