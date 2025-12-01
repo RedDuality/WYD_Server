@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Core.Services.Profiles;
 using Core.DTO.ProfileAPI;
 
-using Core.Services.Users;
-
-
 namespace server.Controllers;
 
 [ApiController]

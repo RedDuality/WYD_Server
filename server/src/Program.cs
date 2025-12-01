@@ -1,5 +1,4 @@
-
-
+using Core.Model.Users;
 
 using Core.Services.Users;
 using Core.Services.Profiles;
@@ -7,22 +6,27 @@ using Core.Services.Events;
 using Core.Services.Util;
 using Core.Services.Notifications;
 using Core.Services.Communities;
+
 using Core.Components.Database;
 using Core.Components.MessageQueue;
+using Core.Components.ObjectStorage;
+using Core.Components.ServerSentMessages;
 
-using Core.Model.Users;
+using Core.External.Authentication;
+using Core.External.Interfaces;
+using Core.External.FCM;
+
+
 
 using server.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Core.Components.ObjectStorage;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Core.External.Authentication;
-using Core.External.Interfaces;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,10 +92,12 @@ builder.Services.AddHttpContextAccessor();
 // Singleton: one instance shared between all request 
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<MongoDbService>();
+builder.Services.AddSingleton<ISseService, SseService>();
 
 builder.Services.AddScoped<IAuthService, FirebaseAuthService>();
 
 builder.Services.AddSingleton<IAuthorizationHandler, UserAuthorizationService>();
+builder.Services.AddSingleton<FCMService>();
 
 builder.Services.AddSingleton<MinioClient>();
 
@@ -100,7 +106,9 @@ builder.Services.AddSingleton<MessageQueueService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserProfileService>();
 builder.Services.AddScoped<UserClaimService>();
+
 builder.Services.AddScoped<DeviceService>();
+builder.Services.AddScoped<WebConnectionService>();
 
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ProfileDetailsService>();
