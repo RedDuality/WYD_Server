@@ -1,18 +1,18 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Copy solution file
 COPY server.sln . 
 
-# Copy project files and their directory structure
-# Copy the structure needed for the restore step
-COPY server/Core/ server/Core/
-COPY server/src/ server/src/
+# 2. Copy the entire 'server' directory which contains all project files.
+# This results in: /app/server/Core/Core.csproj and /app/server/src/server.csproj
+COPY server/ server/ 
 
-# Restore dependencies
+# 3. Restore dependencies
+# The solution file is at /app/server.sln and it finds the projects at
+# /app/server/Core/Core.csproj, matching what is registered in the SLN file.
 RUN dotnet restore server.sln
 
-# Copy all remaining files (source code, etc.)
+# 4. Copy everything else (for code/config files not needed for restore)
 COPY . .
 
 # Build and publish
