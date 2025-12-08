@@ -2,17 +2,21 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 COPY server.sln . 
-
-# 2. Copy the entire 'server' directory which contains all project files.
-# This results in: /app/server/Core/Core.csproj and /app/server/src/server.csproj
 COPY server/ server/ 
 
-# 3. Restore dependencies
-# The solution file is at /app/server.sln and it finds the projects at
-# /app/server/Core/Core.csproj, matching what is registered in the SLN file.
+# --- Fix Path Separator Issue ---
+# 2. Remove the existing projects from the solution
+RUN dotnet sln remove server/src/server.csproj server/Core/Core.csproj
+
+# 3. Add projects back using Linux-style forward slashes
+RUN dotnet sln add server/src/server.csproj
+RUN dotnet sln add server/Core/Core.csproj
+# ---------------------------------
+
+# 4. Restore dependencies (now the paths are correct)
 RUN dotnet restore server.sln
 
-# 4. Copy everything else (for code/config files not needed for restore)
+# 5. Copy everything else (e.g., appsettings.json, code files)
 COPY . .
 
 # Build and publish
