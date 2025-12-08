@@ -2,10 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 # Copy csproj and sln first (better caching of NuGet restore)
-COPY server/src/*.csproj ./server/src/
-COPY server/src/server.sln ./server/src/
-
-RUN dotnet restore server/src/server.sln
+COPY *.sln .
+COPY **/*.csproj .
+RUN dotnet restore
 
 # Copy everything else
 COPY . .
