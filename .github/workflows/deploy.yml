@@ -70,7 +70,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile  # Verify if this is 'Dockerfile' or 'server/Dockerfile' based on your root
+          file: ./server/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
