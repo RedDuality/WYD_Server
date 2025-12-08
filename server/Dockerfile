@@ -4,19 +4,16 @@ WORKDIR /app
 COPY server.sln . 
 COPY server/ server/ 
 
-# --- Fix Path Separator Issue ---
-# 2. Remove the existing projects from the solution
+# --- DEBUG STEP ---
+# This will list all files in 'server/' so you can see the exact casing (Core vs core)
+RUN ls -R server/ 
+# ------------------
+
 RUN dotnet sln remove server/src/server.csproj server/Core/Core.csproj
-
-# 3. Add projects back using Linux-style forward slashes
 RUN dotnet sln add server/src/server.csproj
+
+# Update this line based on the output of the 'ls' command above
 RUN dotnet sln add server/Core/Core.csproj
-# ---------------------------------
-
-# 4. Restore dependencies (now the paths are correct)
-RUN dotnet restore server.sln
-
-# 5. Copy everything else (e.g., appsettings.json, code files)
 COPY . .
 
 # Build and publish
