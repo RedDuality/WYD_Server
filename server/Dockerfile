@@ -1,9 +1,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Copy csproj and sln first (better caching of NuGet restore)
-COPY *.sln .
-COPY **/*.csproj .
+# Copy solution file
+COPY server.sln .
+
+# Copy project files into their proper folders
+COPY server/src/server.csproj server/src/
+COPY server/Core/Core.csproj server/Core/
+
+# Restore dependencies
 RUN dotnet restore
 
 # Copy everything else
@@ -16,3 +21,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "server.dll"]
+
+
