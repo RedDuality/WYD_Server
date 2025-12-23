@@ -2,6 +2,7 @@ using Core.Model.Users;
 
 using Core.Services.Users;
 using Core.Services.Profiles;
+using Core.Services.Masks;
 using Core.Services.Events;
 using Core.Services.Util;
 using Core.Services.Notifications;
@@ -15,8 +16,6 @@ using Core.Components.ServerSentMessages;
 using Core.External.Authentication;
 using Core.External.Interfaces;
 using Core.External.FCM;
-
-
 
 using server.Middleware;
 
@@ -115,6 +114,8 @@ builder.Services.AddScoped<ProfileDetailsService>();
 builder.Services.AddScoped<ProfileTagService>();
 builder.Services.AddScoped<ProfileProfileService>();
 builder.Services.AddScoped<ProfileUpdatePropagationService>();
+
+builder.Services.AddScoped<MaskService>();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<EventUpdatePropagationService>();
