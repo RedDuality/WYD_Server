@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.DTO.MaskAPI;
-using Microsoft.AspNetCore.Authorization;
 using Core.Services.Util;
 using Core.Services.Masks;
+
 
 namespace server.Controllers;
 
@@ -16,7 +16,15 @@ public class MaskController(IContextManager contextManager, MaskService maskServ
     public async Task<IActionResult> CreateMask([FromBody] CreateMaskRequestDto createMaskDto)
     {
         var profileId = contextManager.GetCurrentProfileId();
-        var mask = await maskService.CreateMask(profileId, createMaskDto);
+        var mask = await maskService.CreateMaskAsync(profileId, createMaskDto);
+        return new OkObjectResult(mask);
+    }
+
+    //[Authorize(policy: "CanCreateMasks")]
+    [HttpPost("Update")]
+    public async Task<IActionResult> UpdateMask([FromBody] UpdateMaskRequestDto updateMaskDto)
+    {
+        var mask = await maskService.UpdateMaskAsync(updateMaskDto);
         return new OkObjectResult(mask);
     }
 
@@ -25,6 +33,15 @@ public class MaskController(IContextManager contextManager, MaskService maskServ
     {
         var masks = await maskService.RetrieveMasks(retrieveMasksDto);
         return new OkObjectResult(masks);
+    }
+
+
+    [HttpGet("retrieveEventMask/{eventId}")]
+    public async Task<IActionResult> RetrieveEventMask(string eventId)
+    {
+        var profileId = contextManager.GetCurrentProfileId();
+        var mask = await maskService.RetrieveEventMask(eventId, profileId);
+        return new OkObjectResult(mask);
     }
 
     [HttpPost("ListByProfile")]
