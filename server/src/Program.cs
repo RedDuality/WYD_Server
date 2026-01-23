@@ -116,6 +116,8 @@ builder.Services.AddScoped<ProfileProfileService>();
 builder.Services.AddScoped<ProfileUpdatePropagationService>();
 
 builder.Services.AddScoped<MaskService>();
+builder.Services.AddScoped<MaskProfileService>();
+builder.Services.AddScoped<EventMaskService>();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<EventUpdatePropagationService>();
