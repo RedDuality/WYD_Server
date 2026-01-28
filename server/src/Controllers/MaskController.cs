@@ -3,13 +3,12 @@ using Core.DTO.MaskAPI;
 using Core.Services.Util;
 using Core.Services.Masks;
 
-
 namespace server.Controllers;
 
 [ApiController]
 [Route("Mask")]
 public class MaskController(
-    IContextManager contextManager, 
+    IContextManager contextManager,
     MaskService maskService,
     EventMaskService eventMaskService) : ControllerBase
 {
@@ -41,20 +40,28 @@ public class MaskController(
         return new OkObjectResult("");
     }
 
-    [HttpPost("ListByProfile")]
-    public async Task<IActionResult> ListByProfile([FromBody] RetrieveMultipleMaskRequestDto retrieveDto)
-    {
-        var masks = await maskService.RetrieveMasks(retrieveDto);
-
-        return new OkObjectResult(masks);
-    }
-
     [HttpGet("retrieveMask/{maskId}")]
     public async Task<IActionResult> RetrieveMask(string maskId)
     {
         var profileId = contextManager.GetCurrentProfileId();
-        var mask = await maskService.RetrieveMaskAsync(profileId, maskId);
+        var mask = await maskService.RetrieveSingleMask(profileId, maskId);
         return new OkObjectResult(mask);
+    }
+
+    [HttpPost("RetrieveUserMasks")]
+    public async Task<IActionResult> RetrieveUserMasks([FromBody] RetrieveUserMaskRequestDto retrieveDto)
+    {
+        var masks = await maskService.RetrieveUserMasks(retrieveDto);
+
+        return new OkObjectResult(masks);
+    }
+
+    [HttpPost("RetrieveProfileMasks")]
+    public async Task<IActionResult> RetrieveProfileMasks([FromBody] RetrieveProfileMaskRequestDto retrieveDto)
+    {
+        var masks = await maskService.RetrieveProfileMasks(retrieveDto);
+
+        return new OkObjectResult(masks);
     }
 
     [HttpGet("retrieveEventMask/{eventId}")]
