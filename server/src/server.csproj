@@ -11,7 +11,8 @@
     <!-- JWT decoding -->
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.15.0" />
     <!-- AddSwaggerGen -->
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\src\Core.csproj" />
