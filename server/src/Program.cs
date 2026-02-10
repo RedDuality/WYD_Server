@@ -100,7 +100,8 @@ builder.Services.AddSingleton<FCMService>();
 
 builder.Services.AddSingleton<MinioClient>();
 
-builder.Services.AddSingleton<MessageQueueService>();
+builder.Services.AddSingleton<IMessageQueueService, MessageQueueService>();
+builder.Services.AddScoped<MessageQueueHandlerService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserProfileService>();
@@ -140,8 +141,6 @@ builder.Services.AddScoped<IContextManager, ContextManager>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<BroadcastService>();
 builder.Services.AddScoped<ProfileIdResolverFactory>();
-
-builder.Services.AddScoped<IMessageQueueHandlerService, MessageQueueHandlerService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
