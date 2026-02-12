@@ -22,8 +22,9 @@ public class EventController(IContextManager contextManager, ProfileService prof
     public async Task<IActionResult> Create([FromBody] CreateEventRequestDto newEvent)
     {
         // User Admin
-        var profileHash = contextManager.GetCurrentProfileId();
-        var ev = await eventService.CreateEventAsync(newEvent, profileHash);
+        var profileId = contextManager.GetCurrentProfileId();
+        var profile = await profileService.RetrieveProfileById(profileId);
+        var ev = await eventService.CreateEventAsync(newEvent, profile);
         return new OkObjectResult(ev);
     }
 
@@ -39,13 +40,13 @@ public class EventController(IContextManager contextManager, ProfileService prof
 
     [Authorize(policy: "CanShareEvents")]
     [HttpPost("Share/{eventId}")]
-    public async Task<IActionResult> Share(string eventId, [FromBody] List<ShareEventRequestDto> dtos)
+    public async Task<IActionResult> Share(string eventId, [FromBody] ShareEventRequestDto dtos)
     {
         // u admin
         // e partecipant
         var profileId = contextManager.GetCurrentProfileId();
         var profile = await profileService.RetrieveProfileById(profileId);
-        var ev = await eventService.ShareAsync(profile, eventId, dtos);
+        var ev = await eventService.ShareEventAsync(profile, eventId, dtos);
         return new OkObjectResult(ev);
     }
 
