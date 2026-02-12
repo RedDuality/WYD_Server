@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Core.DTO.MaskAPI;
 using Core.Services.Util;
 using Core.Services.Masks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers;
 
@@ -13,7 +14,7 @@ public class MaskController(
     EventMaskService eventMaskService) : ControllerBase
 {
 
-    //[Authorize(policy: "CanCreateMasks")]
+    [Authorize(policy: "CanCreateMasks")]
     [HttpPost("Create")]
     public async Task<IActionResult> CreateMask([FromBody] CreateMaskRequestDto createMaskDto)
     {
@@ -22,7 +23,7 @@ public class MaskController(
         return new OkObjectResult(mask);
     }
 
-    //[Authorize(policy: "CanCreateMasks")]
+    [Authorize(policy: "CanEditMasks")]
     [HttpPost("Update")]
     public async Task<IActionResult> UpdateMask([FromBody] UpdateMaskRequestDto updateMaskDto)
     {
@@ -31,7 +32,7 @@ public class MaskController(
         return new OkObjectResult(mask);
     }
 
-    //[Authorize(policy: "CanDeleteMasks")]
+    [Authorize(policy: "CanDeleteMasks")]
     [HttpGet("Delete/{maskId}")]
     public async Task<IActionResult> DeleteMask(string maskId)
     {
@@ -40,18 +41,20 @@ public class MaskController(
         return new OkObjectResult("");
     }
 
-    [HttpGet("retrieveMask/{maskId}")]
-    public async Task<IActionResult> RetrieveMask(string maskId)
+    [Authorize(policy: "CanReadEvents")]
+    [HttpGet("retrieveEventMask/{eventId}")]
+    public async Task<IActionResult> RetrieveEventMask(string eventId)
     {
         var profileId = contextManager.GetCurrentProfileId();
-        var mask = await maskService.RetrieveSingleMask(profileId, maskId);
+        var mask = await eventMaskService.RetrieveEventMask(eventId, profileId);
         return new OkObjectResult(mask);
     }
 
     [HttpPost("RetrieveUserMasks")]
     public async Task<IActionResult> RetrieveUserMasks([FromBody] RetrieveUserMaskRequestDto retrieveDto)
     {
-        var masks = await maskService.RetrieveUserMasks(retrieveDto);
+        var userId = contextManager.GetUserId();
+        var masks = await maskService.RetrieveUserMasks(userId, retrieveDto);
 
         return new OkObjectResult(masks);
     }
@@ -64,11 +67,11 @@ public class MaskController(
         return new OkObjectResult(masks);
     }
 
-    [HttpGet("retrieveEventMask/{eventId}")]
-    public async Task<IActionResult> RetrieveEventMask(string eventId)
+    [HttpGet("retrieveMask/{maskId}")]
+    public async Task<IActionResult> RetrieveMask(string maskId)
     {
         var profileId = contextManager.GetCurrentProfileId();
-        var mask = await eventMaskService.RetrieveEventMask(eventId, profileId);
+        var mask = await maskService.RetrieveSingleMask(profileId, maskId);
         return new OkObjectResult(mask);
     }
 
