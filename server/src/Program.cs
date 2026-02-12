@@ -2,6 +2,7 @@ using Core.Model.Users;
 
 using Core.Services.Users;
 using Core.Services.Profiles;
+using Core.Services.Masks;
 using Core.Services.Events;
 using Core.Services.Util;
 using Core.Services.Notifications;
@@ -16,16 +17,14 @@ using Core.External.Authentication;
 using Core.External.Interfaces;
 using Core.External.FCM;
 
-
-
 using server.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -101,7 +100,8 @@ builder.Services.AddSingleton<FCMService>();
 
 builder.Services.AddSingleton<MinioClient>();
 
-builder.Services.AddSingleton<MessageQueueService>();
+builder.Services.AddSingleton<IMessageQueueService, MessageQueueService>();
+builder.Services.AddScoped<MessageQueueHandlerService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserProfileService>();
@@ -115,6 +115,12 @@ builder.Services.AddScoped<ProfileDetailsService>();
 builder.Services.AddScoped<ProfileTagService>();
 builder.Services.AddScoped<ProfileProfileService>();
 builder.Services.AddScoped<ProfileUpdatePropagationService>();
+
+builder.Services.AddScoped<ImportedProfilesService>();
+
+builder.Services.AddScoped<MaskService>();
+builder.Services.AddScoped<MaskProfileService>();
+builder.Services.AddScoped<EventMaskService>();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<EventUpdatePropagationService>();
@@ -136,9 +142,6 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<BroadcastService>();
 builder.Services.AddScoped<ProfileIdResolverFactory>();
 
-builder.Services.AddScoped<IMessageQueueHandlerService, MessageQueueHandlerService>();
-
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Wyd API", Version = "v1" });
@@ -149,24 +152,15 @@ builder.Services.AddSwaggerGen(options =>
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
+        Scheme = "Bearer",
         BearerFormat = "JWT"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement((document) => new OpenApiSecurityRequirement()
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
+
 });
 
 var app = builder.Build();
