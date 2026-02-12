@@ -40,7 +40,7 @@ public class EventController(IContextManager contextManager, ProfileService prof
 
     [Authorize(policy: "CanShareEvents")]
     [HttpPost("Share/{eventId}")]
-    public async Task<IActionResult> Share(string eventId, [FromBody] List<ShareEventRequestDto> dtos)
+    public async Task<IActionResult> Share(string eventId, [FromBody] ShareEventRequestDto dtos)
     {
         // u admin
         // e partecipant
