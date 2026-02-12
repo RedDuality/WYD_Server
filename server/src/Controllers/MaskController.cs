@@ -59,6 +59,15 @@ public class MaskController(
         return new OkObjectResult(masks);
     }
 
+    [HttpPost("RetrieveUpdated")]
+    public async Task<IActionResult> RetrieveUpdated([FromBody] RetrieveUserMaskRequestDto retrieveDto)
+    {
+        var userId = contextManager.GetUserId();
+        var masks = await maskService.RetrieveUpdated(userId, retrieveDto);
+
+        return new OkObjectResult(masks);
+    }
+
     [HttpPost("RetrieveProfileMasks")]
     public async Task<IActionResult> RetrieveProfileMasks([FromBody] RetrieveProfileMaskRequestDto retrieveDto)
     {
