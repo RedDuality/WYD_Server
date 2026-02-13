@@ -183,6 +183,8 @@ if (app.Environment.IsEnvironment("Local"))
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+
 app.UseCors("PublicApiPolicy");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
