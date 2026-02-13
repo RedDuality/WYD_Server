@@ -26,17 +26,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
 
+var AllowSpecificOrigins = "AllowSpecificOrigins";
+var AllowLocalhostOrigins = "AllowLocalhostOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PublicApiPolicy", builder =>
+
+    options.AddPolicy(AllowSpecificOrigins, policy =>
     {
-        builder
-            .AllowAnyOrigin() // Public API: allow all origins(CORS)
+        policy.WithOrigins("https://wyd-63r.pages.dev")
             .AllowAnyHeader() // Allow headers like Authorization
             .AllowAnyMethod(); // GET, POST, PUT, DELETE, etc.
+    });
+
+    options.AddPolicy(AllowLocalhostOrigins, policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod(); 
     });
 });
 
@@ -181,11 +190,16 @@ if (app.Environment.IsEnvironment("Local"))
 
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors(AllowLocalhostOrigins);
+}
+else
+{
+    app.UseCors(AllowSpecificOrigins);
 }
 
-app.UseRouting();
 
-app.UseCors("PublicApiPolicy");
+app.UseRouting();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
