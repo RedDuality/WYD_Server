@@ -33,19 +33,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-
     options.AddPolicy(AllowSpecificOrigins, policy =>
     {
-        policy.WithOrigins("https://wyd-63r.pages.dev")
-            .AllowAnyHeader() // Allow headers like Authorization
-            .AllowAnyMethod(); // GET, POST, PUT, DELETE, etc.
+        policy.AllowAnyOrigin()
+        //.WithOrigins("https://wyd-63r.pages.dev")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 
     options.AddPolicy(AllowLocalhostOrigins, policy =>
     {
         policy.AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod(); 
+            .AllowAnyMethod();
     });
 });
 
@@ -92,8 +92,6 @@ builder.Services.AddAuthorization(options =>
 
 // for ContextManager
 builder.Services.AddHttpContextAccessor();
-
-
 
 // Transient: each instance will be re-created every time it is called, even in the same request
 // Scoped: the same class in the same request
@@ -174,6 +172,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseRouting();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -197,9 +196,6 @@ else
 {
     app.UseCors(AllowSpecificOrigins);
 }
-
-
-app.UseRouting();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
