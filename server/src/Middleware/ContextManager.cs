@@ -1,3 +1,4 @@
+using Core.Model.Users;
 using Core.Services.Util;
 
 namespace server.Middleware;
@@ -23,16 +24,23 @@ public class ContextManager(IHttpContextAccessor httpContextAccessor) : IContext
         var userPrincipal = _httpContextAccessor.HttpContext?.User;
         return ContextService.TryGetUserId(userPrincipal);
     }
-    
+
     public string GetUserId()
     {
         var userPrincipal = _httpContextAccessor.HttpContext?.User;
         return ContextService.GetUserId(userPrincipal);
     }
 
+    public SignInType GetSignInType()
+    {
+        var userPrincipal = _httpContextAccessor.HttpContext?.User;
+        return ContextService.GetSignInProvider(userPrincipal);
+    }
 
     public string GetCurrentProfileId()
     {
         return ContextService.RetrieveFromHeaders(_httpContextAccessor.HttpContext!.Request, "Current-Profile");
     }
+
+
 }
