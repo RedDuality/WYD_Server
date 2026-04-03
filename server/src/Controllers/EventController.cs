@@ -1,17 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
-using Core.Services.Events;
 using Core.DTO.EventAPI;
 using Core.DTO.CommunityAPI;
 
 using Microsoft.AspNetCore.Authorization;
 using Core.Services.Profiles;
 using Core.Services.Util;
+using Core.Services.Events.Instances;
+using Core.Services.Events;
+using Core.Services.Users;
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("Event")]
-public class EventController(IContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
+public class EventController(
+    IContextManager contextManager,
+    ProfileService profileService,
+    EventService eventService,
+    EventRetrieveService eventRetrieveService,
+    UserProfileService userProfileService) : ControllerBase
 {
     private readonly EventService eventService = eventService;
 
@@ -81,7 +88,10 @@ public class EventController(IContextManager contextManager, ProfileService prof
     public async Task<IActionResult> ListByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
     {
         // u viewer
-        var events = await eventService.RetrieveEventsByProfileIds(retrieveDto);
+        var userId = contextManager.GetUserId();
+        var userProfiles =  await userProfileService.RetrieveFromUser(new MongoDB.Bson.ObjectId(userId));
+        var profileIds = userProfiles.Select(up => up.ProfileId).ToList();
+        var events = await eventRetrieveService.RetrieveEventsByProfileIds(profileIds,retrieveDto);
 
         return new OkObjectResult(events);
     }
@@ -89,7 +99,7 @@ public class EventController(IContextManager contextManager, ProfileService prof
 
     [Authorize(policy: "CanReadEvents")]
     [HttpPost("UpdateByProfile")]
-    public async Task<IActionResult> UpdateByProfile([FromBody] RetrieveMultipleEventsRequestDto retrieveDto)
+    public async Task<IActionResult> UpdateByProfile([FromBody] RetrieveUpdatedEventsRequestDto retrieveDto)
     {
         // u viewer
         var events = await eventService.RetrieveUpdatesByProfileIds(retrieveDto);
@@ -102,8 +112,8 @@ public class EventController(IContextManager contextManager, ProfileService prof
     public async Task<IActionResult> GetEssentialsAsync(string eventId)
     {
         // u viewer
-        var profileHash = contextManager.GetCurrentProfileId();
-        var ev = await eventService.RetrieveEventById(eventId, profileHash);
+        var profileId = contextManager.GetCurrentProfileId();
+        var ev = await eventService.RetrieveEventById(eventId, profileId);
         return new OkObjectResult(ev);
     }
 

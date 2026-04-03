@@ -3,12 +3,19 @@ using Microsoft.AspNetCore.Authorization;
 
 using Core.Services.Profiles;
 using Core.DTO.ProfileAPI;
+using Core.Services.Util;
+using Core.Services.Users;
+using Core.External.ImportPlatform.GoogleCalendar;
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("Profile")]
-public class ProfileController(ProfileService profileService, ProfileTagService profileTagService) : ControllerBase
+public class ProfileController(
+    IContextManager contextManager,
+    ProfileService profileService,
+    UserService userService,
+    ProfileTagService profileTagService) : ControllerBase
 {
     [Authorize]
     [HttpGet("SearchBytag/{searchTag}")]
@@ -42,6 +49,21 @@ public class ProfileController(ProfileService profileService, ProfileTagService 
         var resultDto = await profileService.Update(updateDto);
         return new OkObjectResult(resultDto);
     }
+
+    [Authorize(policy: "CanImpersonateProfile")]
+    [HttpPost("Import")]
+    public async Task<IActionResult> Import([FromBody] ImportRequestDto importDto)
+    {
+        var profileId = contextManager.GetCurrentProfileId();
+        var userId = contextManager.GetUserId();
+
+        var accountEmail = await GoogleCalendarService.GetEmailFromIdToken(importDto.AccessToken);
+        await userService.CheckUserHaveAccount(userId, accountEmail);
+        
+        await profileService.Import(importDto.AccessToken, userId, profileId);
+        return new OkObjectResult("");
+    }
+
 
 
 }

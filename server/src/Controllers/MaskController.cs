@@ -11,6 +11,7 @@ namespace server.Controllers;
 public class MaskController(
     IContextManager contextManager,
     MaskService maskService,
+    MaskRetrieveService maskRetrieveService, 
     EventMaskService eventMaskService) : ControllerBase
 {
 
@@ -54,7 +55,7 @@ public class MaskController(
     public async Task<IActionResult> RetrieveUserMasks([FromBody] RetrieveUserMaskRequestDto retrieveDto)
     {
         var userId = contextManager.GetUserId();
-        var masks = await maskService.RetrieveUserMasks(userId, retrieveDto);
+        var masks = await maskRetrieveService.RetrieveUserMasks(userId, retrieveDto);
 
         return new OkObjectResult(masks);
     }
@@ -63,7 +64,7 @@ public class MaskController(
     public async Task<IActionResult> RetrieveUpdated([FromBody] RetrieveUserMaskRequestDto retrieveDto)
     {
         var userId = contextManager.GetUserId();
-        var masks = await maskService.RetrieveUpdated(userId, retrieveDto);
+        var masks = await maskRetrieveService.RetrieveUpdated(userId, retrieveDto);
 
         return new OkObjectResult(masks);
     }
@@ -71,7 +72,7 @@ public class MaskController(
     [HttpPost("RetrieveProfileMasks")]
     public async Task<IActionResult> RetrieveProfileMasks([FromBody] RetrieveProfileMaskRequestDto retrieveDto)
     {
-        var masks = await maskService.RetrieveProfileMasks(retrieveDto);
+        var masks = await maskRetrieveService.RetrieveProfileMasks(retrieveDto);
 
         return new OkObjectResult(masks);
     }
@@ -80,7 +81,7 @@ public class MaskController(
     public async Task<IActionResult> RetrieveMask(string maskId)
     {
         var profileId = contextManager.GetCurrentProfileId();
-        var mask = await maskService.RetrieveSingleMask(profileId, maskId);
+        var mask = await maskRetrieveService.RetrieveSingleMask(profileId, maskId);
         return new OkObjectResult(mask);
     }
 

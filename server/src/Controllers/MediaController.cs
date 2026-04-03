@@ -4,11 +4,15 @@ using Core.Services.Events;
 using Microsoft.AspNetCore.Authorization;
 using Core.Services.Profiles;
 using Core.Services.Util;
+using Core.Services.Events.Instances;
 namespace server.Controllers;
 
 [ApiController]
 [Route("Media")]
-public class MediaController(IContextManager contextManager, ProfileService profileService, EventService eventService) : ControllerBase
+public class MediaController(
+    IContextManager contextManager, 
+    ProfileService profileService, 
+    EventService eventService) : ControllerBase
 {
 
     [Authorize(policy: "CanEditEvents")]

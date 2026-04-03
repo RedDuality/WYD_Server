@@ -25,6 +25,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
+using Core.External.ImportPlatform.GoogleCalendar;
+using Core.Services.Events.Instances;
+using Core.Services.Events.Recurrence;
+using Core.Components.MessageQueue.ImplementationSpecific;
 
 var AllowSpecificOrigins = "AllowSpecificOrigins";
 var AllowLocalhostOrigins = "AllowLocalhostOrigins";
@@ -105,6 +109,8 @@ builder.Services.AddScoped<IAuthService, FirebaseAuthService>();
 builder.Services.AddSingleton<IAuthorizationHandler, UserAuthorizationService>();
 builder.Services.AddSingleton<FCMService>();
 
+builder.Services.AddScoped<GoogleCalendarService>();
+
 builder.Services.AddSingleton<MinioClient>();
 
 builder.Services.AddSingleton<IMessageQueueService, MessageQueueService>();
@@ -126,15 +132,22 @@ builder.Services.AddScoped<ProfileUpdatePropagationService>();
 builder.Services.AddScoped<ImportedProfilesService>();
 
 builder.Services.AddScoped<MaskService>();
+builder.Services.AddScoped<MaskRetrieveService>();
 builder.Services.AddScoped<MaskProfileService>();
 builder.Services.AddScoped<EventMaskService>();
 
 builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<EventProfileService>();
+builder.Services.AddScoped<ProfileEventService>();
 builder.Services.AddScoped<EventUpdatePropagationService>();
 
+builder.Services.AddScoped<RecurrentEventService>();
+builder.Services.AddScoped<RecurrentEventProfileService>();
+builder.Services.AddScoped<ProfileRecurrentEventService>();
+builder.Services.AddScoped<RecurrentEventUpdatePropagationService>();
+
+builder.Services.AddScoped<EventRetrieveService>();
 builder.Services.AddScoped<EventDetailsService>();
-builder.Services.AddScoped<ProfileEventService>();
-builder.Services.AddScoped<EventProfileService>();
 
 builder.Services.AddScoped<MediaService>();
 
