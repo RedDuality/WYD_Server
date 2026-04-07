@@ -28,7 +28,7 @@ public class RecurrentEventController(
     }
 
     [Authorize(policy: "CanReadEvents")]
-    [HttpPost("retrieveDetails")]
+    [HttpPost("RetrieveDetails")]
     public async Task<IActionResult> GetDetailsAsync([FromBody] RetrieveRecurrenceInstanceDetailsRequestDto requestDto)
     {
         // u viewer
@@ -37,5 +37,15 @@ public class RecurrentEventController(
         var details = await eventService.RetrieveDetailsById(profile, requestDto);
         return new OkObjectResult(details);
     }
+
+    [Authorize(policy: "CanEditEvents")]
+    [HttpPost("Update")]
+    public async Task<IActionResult> Update([FromBody] UpdateRecurrentEventRequestDto updateDto)
+    {
+        // u viewer
+        var details = await eventService.UpdateRecurrentEvent(updateDto);
+        return new OkObjectResult(details);
+    }
+
 
 }
