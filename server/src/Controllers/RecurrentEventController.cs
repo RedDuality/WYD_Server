@@ -43,7 +43,9 @@ public class RecurrentEventController(
     public async Task<IActionResult> Update([FromBody] UpdateRecurrentEventRequestDto updateDto)
     {
         // u viewer
-        var details = await eventService.UpdateRecurrentEvent(updateDto);
+        var profileId = contextManager.GetCurrentProfileId();
+        var profile = await profileService.RetrieveProfileById(profileId);
+        var details = await eventService.UpdateRecurrentEvent(updateDto, profile);
         return new OkObjectResult(details);
     }
 
