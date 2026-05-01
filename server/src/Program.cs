@@ -142,6 +142,7 @@ builder.Services.AddScoped<ProfileEventService>();
 builder.Services.AddScoped<EventUpdatePropagationService>();
 
 builder.Services.AddScoped<RecurrentEventService>();
+builder.Services.AddScoped<RecurrentEventUpdateService>();
 builder.Services.AddScoped<RecurrentEventProfileService>();
 builder.Services.AddScoped<ProfileRecurrentEventService>();
 builder.Services.AddScoped<RecurrentEventUpdatePropagationService>();

@@ -13,41 +13,45 @@ namespace server.Controllers;
 public class RecurrentEventController(
     IContextManager contextManager,
     ProfileService profileService,
-    RecurrentEventService eventService) : ControllerBase
-{
+    RecurrentEventService recurrentEventService,
+    RecurrentEventUpdateService recurrentEventUpdateService) : ControllerBase {
 
     [Authorize(policy: "CanCreateEvents")]
     [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] CreateRecurrentEventRequestDto newEvent)
-    {
+    public async Task<IActionResult> Create([FromBody] CreateRecurrentEventRequestDto newEvent) {
         // User Admin
         var profileId = contextManager.GetCurrentProfileId();
         var profile = await profileService.RetrieveProfileById(profileId);
-        var ev = await eventService.CreateRecurrentEventAsync(newEvent, profile);
+        var ev = await recurrentEventService.CreateRecurrentEventAsync(newEvent, profile);
         return new OkObjectResult(ev);
     }
 
     [Authorize(policy: "CanReadEvents")]
     [HttpPost("RetrieveDetails")]
-    public async Task<IActionResult> GetDetailsAsync([FromBody] RetrieveRecurrenceInstanceDetailsRequestDto requestDto)
-    {
+    public async Task<IActionResult> GetDetailsAsync([FromBody] RetrieveRecurrenceInstanceDetailsRequestDto requestDto) {
         // u viewer
         var profileId = contextManager.GetCurrentProfileId();
         var profile = await profileService.RetrieveProfileById(profileId);
-        var details = await eventService.RetrieveDetailsById(profile, requestDto);
+        var details = await recurrentEventService.RetrieveDetailsById(profile, requestDto);
         return new OkObjectResult(details);
     }
 
     [Authorize(policy: "CanEditEvents")]
-    [HttpPost("Update")]
-    public async Task<IActionResult> Update([FromBody] UpdateRecurrentEventRequestDto updateDto)
-    {
-        // u viewer
+    [HttpPost("UpdateSequence")]
+    public async Task<IActionResult> UpdateSequence([FromBody] UpdateRecurrentEventRequestDto updateDto) {
         var profileId = contextManager.GetCurrentProfileId();
         var profile = await profileService.RetrieveProfileById(profileId);
-        var details = await eventService.UpdateRecurrentEvent(updateDto, profile);
+        var details = await recurrentEventUpdateService.UpdateRecurrentEvent(updateDto, profile);
         return new OkObjectResult(details);
     }
 
 
+    [Authorize(policy: "CanEditEvents")]
+    [HttpPost("UpdateSingle")]
+    public async Task<IActionResult> UpdateSingleInstance([FromBody] UpdateRecurrentEventRequestDto updateDto) {
+        var profileId = contextManager.GetCurrentProfileId();
+        var profile = await profileService.RetrieveProfileById(profileId);
+        var details = await recurrentEventUpdateService.UpdateSingleInstance(updateDto, profile);
+        return new OkObjectResult(details);
+    }
 }
